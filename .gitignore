@@ -1,0 +1,13 @@
+# Folders
+node_modules
+
+# Lock
+*.lock
+
+# Log
+*.log
+
+package-lock.json
+
+# Misc
+.DS_Store
