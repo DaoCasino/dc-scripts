@@ -1,5 +1,5 @@
 {
-  "name": "dc-workflow",
+  "name": "dc-scripts",
   "version": "0.0.1",
   "description": "env for development DCLabs protocol",
   "main": "./src/index.js",
