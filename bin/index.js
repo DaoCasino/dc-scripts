@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 const program = require('commander')
-const test    = require('../src/Test')
+const test  = require('../src/test')
+const stop  = require('../src/stop')
+const start = require('../src/start')
 
 program
   .version(require('../package.json').version)
@@ -12,7 +14,12 @@ program
   .description('Start env for development with options')
   .option('-p, --protocol', 'Start without bankroller-container')
   .action(cmd => start(cmd))
-  
+
+program
+  .command('stop')
+  .description('stop env for development')
+  .action(cmd => stop(cmd))
+
 program
   .command('test')
   .description('Start testing with options')

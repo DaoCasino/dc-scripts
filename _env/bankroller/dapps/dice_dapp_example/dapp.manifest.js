@@ -2,9 +2,9 @@
 export default {
 
   // DApp is disabled
-  disabled: true,
+  disabled: false,
 
-  slug  : 'dice_example_v1',
+  slug  : 'dice_ex_v1',
   logic : './dapp.logic.js',
 
   contract : {

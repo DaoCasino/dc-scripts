@@ -15,7 +15,7 @@ services:
     ports:
       - 1406:8545
     volumes:
-      - ./protocol:/protocol
+      - ${TARGET_PATH}:/protocol
     networks:
        - dc_network
   
@@ -29,18 +29,10 @@ services:
     image:
       daocasino/bankroller
     volumes:
-      - ./protocol:/protocol
+      - ${TARGET_PATH}:/protocol
       - ./bankroller/dapps/:/bankroller/data_sdk/dapps/
-      - ../build:/bankroller/data_sdk/dapps/sdk_dapp/
     entrypoint: 
       ["sh", "./run_sdk_env.sh"]
     networks:
       - dc_network
-  dc_ipfs:
-    image: ipfs/go-ipfs
-    container_name: "ipfs_deployer"
-    labels:
-      - "IPFS node for Deploy DApp"
-    volumes:
-      - ../build:/go/target
 

@@ -4,7 +4,8 @@
   "description": "env for development DCLabs protocol",
   "main": "./src/index.js",
   "scripts": {
-    "start": "sh ./_env",
+    "start": "cd ./_env && docker-compose up -d dc_protocol",
+    "migrate": "truffle migrate --reset",
     "start:nobankroller": "",
     "test:lib": "",
     "test:bankroller": "",
@@ -26,11 +27,13 @@
   "author": "Ilya Shu <ilya.dev@dao.casino>",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^2.4.1",
     "commander": "^2.17.1",
     "dotenv": "^6.0.0",
     "jest": "^23.5.0",
-    "pm2": "^3.0.4"
-  },
-  "devDependencies": {
+    "log-symbols": "^2.2.0",
+    "ora": "^3.0.0",
+    "truffle": "^4.1.14",
+    "web3": "^1.0.0-beta.35"
   }
 }
