@@ -2,11 +2,8 @@ const myDAppGame = artifacts.require('./myDAppGame.sol')
 const Miner      = artifacts.require('./tools/BlockMiner.sol')
 
 module.exports = function (deployer, network) {
-  const addr  = require('./config.js')(network).protocol.addresses
+  const addr = require('./config.js')(network).protocol.addresses
   
-  /*
-      contract myDAppGame is oneStepGame { constructor (
-  */
   deployer.deploy(
     myDAppGame ,
       addr.ERC20    , // ERC20Interface _token       ,

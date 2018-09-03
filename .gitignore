@@ -11,3 +11,6 @@ package-lock.json
 
 # Misc
 .DS_Store
+
+# lib
+src/tests/dapp/DC.js

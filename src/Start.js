@@ -14,11 +14,13 @@ module.exports = cmd => {
     shell: true
   })
 
-  containerUp.on('close', () => {
-    spawn('npm run migrate', {
-      stdio: 'inherit',
-      cwd: path.resolve(__dirname, '../'),
-      shell: true
-    })
+  containerUp.on('exit', code => {
+    if (code === 0) {
+      spawn('npm run migrate', {
+        stdio: 'inherit',
+        cwd: path.resolve(__dirname, '../'),
+        shell: true
+      })
+    }
   })
 }

@@ -1,4 +1,4 @@
-const chalk      = require('chalk');
+const pm2        = require('pm2')
 const ora        = require('ora')
 const logSymbols = require('log-symbols');
 
@@ -17,7 +17,7 @@ class Reporter {
     (this.succeed)
       ? this.ora.succeed('Full test success')
       : this.ora.fail('Test not success with Error')
-
+    
     results.testResults.forEach(result => (result.failureMessage !== null) &&
       console.log(result.failureMessage))
   }

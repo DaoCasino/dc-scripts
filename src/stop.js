@@ -1,7 +1,7 @@
 const path  = require('path')
 const spawn = require('child_process').spawn
 
-module.exports = cmd => {
+module.exports = () => {
   process.env.TARGET_PATH = path.resolve(process.cwd(), 'protocol')
 
   const containerDown = spawn('docker-compose down', {
