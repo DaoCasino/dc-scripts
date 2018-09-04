@@ -16,8 +16,8 @@ module.exports = cmd => {
   containerUp.on('exit', code => {
     if (code === 0) {
       ncp(
-        path.resolve(__dirname, '../_env/protocol'),
-        path.resolve(process.cwd(), 'protocol'),
+        path.join(__dirname, '../_env/protocol'),
+        path.join(process.cwd(), 'protocol'),
         err => {
           if (err) {
             console.error(err)
