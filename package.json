@@ -2,7 +2,7 @@
   "name": "dc-scripts",
   "version": "0.0.1",
   "description": "env for development DCLabs protocol",
-  "main": "./_env/index.js",
+  "main": "./src/index.js",
   "scripts": {
     "postinstall": "sh scripts/postinstall.sh",
     "preinstall": "sh scripts/preinstall.sh",
@@ -31,6 +31,7 @@
     "dotenv": "^6.0.0",
     "jest": "^23.5.0",
     "log-symbols": "^2.2.0",
+    "ncp": "^2.0.0",
     "ora": "^3.0.0",
     "pm2": "^3.0.4",
     "puppeteer": "^1.7.0",
