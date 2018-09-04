@@ -1,34 +1,17 @@
 #!/usr/bin/env bash -e
 sh `dirname "$0"`/check_docker.sh || exit 1
 
+PROTOCOL_DOCKER="dc_protocol"
+BANKROLLER_DOCKER="dc_bankroller"
+ARG=$1
+
 cd `dirname "$0"`/../
-
-# First run check and notice
-mkdir -p ./tmp
-file="./tmp/run.txt"
-if [ -f "$file" ]
+if [ $ARG == $PROTOCOL_DOCKER ];
+then
+	if [ ! "$(docker ps -q -f name=$ARG)" ]
 	then
-		echo ""
-	else
-		echo "first_run" > $file
-		clear
-		sh _scripts/hello.sh || exit 1
+		docker-compose up -d $ARG || sleep 3
+	fi
+else
+	docker-compose up -d || sleep 3
 fi
-
-
-
-clear
-echo ""
-echo " * Run DaoCasino protocol in TestRPC(ganache) and bankroller-node"
-echo ""
-mkdir -p ./protocol
-
-if [ "$OSTYPE" = linux-gnu ]; then 
-  whithSudo = "sudo"
-else 
-  whithSudo = ""
-fi
-
-$withSudo docker ps || sleep 7
-
-docker-compose up -d

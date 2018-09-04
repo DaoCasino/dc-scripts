@@ -1,5 +1,5 @@
 const path      = require('path')
-const Utils     = require('../Utils')
+const Utils     = require('../../Utils')
 const puppeteer = require('puppeteer')
 
 let page    = false

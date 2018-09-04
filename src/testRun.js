@@ -2,6 +2,7 @@ const fs      = require('fs')
 const pm2     = require('pm2')
 const jest    = require('jest')
 const path    = require('path')
+const Utils   = require('./Utils')
 const spawn   = require('child_process').spawn
 const _config = require('../workflow.config.json')
 
@@ -21,9 +22,14 @@ async function integration () {
       name: 'bankroller',
       cwd: path.join(_config.protocolDir, './bankroller-core'),
       script: 'npm',
-      args: 'start'
+      args: 'run start'
     }, (err, apps) => {
       if (err) { throw new Error(err) }
+      
+      Utils.copyContracts(path.join(
+        _config.protocolDir,
+        './bankroller-core/protocol')
+      )
     })
   })
 
