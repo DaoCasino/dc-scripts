@@ -1,6 +1,6 @@
 const path = require('path')
 
-const protocol  = process.env.TARGET_PATH
+const protocol  = path.join(__dirname, '../protocol')
 const contracts = path.resolve(protocol + '/contracts/')
 const dapp_abi  = path.resolve(protocol + '/dapp.contract.json')
 

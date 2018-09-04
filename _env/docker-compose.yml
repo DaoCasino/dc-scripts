@@ -15,7 +15,7 @@ services:
     ports:
       - 1406:8545
     volumes:
-      - ${TARGET_PATH}:/protocol
+      - ./protocol:/protocol
     networks:
        - dc_network
   

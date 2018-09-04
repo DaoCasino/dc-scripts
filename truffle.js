@@ -18,5 +18,5 @@ module.exports = {
 
   contracts_directory:       path.resolve(__dirname, './_env/contracts'),
   migrations_directory:      path.resolve(__dirname, './_env/migrations'),
-  contracts_build_directory: path.resolve(process.env.TARGET_PATH, 'build')
+  contracts_build_directory: path.resolve(__dirname, './_env/protocol/build')
 }
