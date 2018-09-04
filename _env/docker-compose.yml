@@ -29,7 +29,7 @@ services:
     image:
       daocasino/bankroller
     volumes:
-      - ${TARGET_PATH}:/protocol
+      - ./protocol:/protocol
       - ./bankroller/dapps/:/bankroller/data_sdk/dapps/
     entrypoint: 
       ["sh", "./run_sdk_env.sh"]
