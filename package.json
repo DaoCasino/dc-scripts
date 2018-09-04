@@ -4,12 +4,9 @@
   "description": "env for development DCLabs protocol",
   "main": "./src/index.js",
   "scripts": {
+    "preinstall": "sh scripts/preinstall.sh",
     "start": "cd ./_env && docker-compose up -d dc_protocol",
-    "migrate": "truffle migrate --reset",
-    "start:nobankroller": "",
-    "test:lib": "",
-    "test:bankroller": "",
-    "test:messaging": ""
+    "migrate": "truffle migrate --reset"
   },
   "bin": {
     "dc-scripts": "bin/index.js"

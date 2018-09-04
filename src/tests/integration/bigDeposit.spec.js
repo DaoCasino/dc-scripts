@@ -1,17 +1,24 @@
 const path      = require('path')
-const puppeteer = require('puppeteer');
+const Utils     = require('../Utils')
+const puppeteer = require('puppeteer')
 
 let page    = false
 let browser = false
 
 beforeAll(async () => {
   browser = await puppeteer.launch({
-    dumpio: false,
+    dumpio: true,
+    handleSIGINT: false,
     rgs: [
       '--disable-dev-shm-usage',
       '--enable-features=NetworkService'
     ],
     timeout: 0
+  })
+
+  process.on('SIGINT', () => {
+    browser.close()
+    process.exit(130)
   })
 
   page = await browser.newPage()
@@ -20,17 +27,18 @@ beforeAll(async () => {
   await page.reload()
 })
 
-afterAll(() => {
-  browser.close()
+afterAll(async () => {
+  await page.close()
+  await browser.close()
 })
 
-describe('Test normal', () => {
+describe('Test: Big deposit', () => {
   test('Connect', async done => {
     const connect = await page.evaluate(() => {
       return new Promise((resolve, reject) => {
         window.Dice.connect({
           bankroller: 'auto',
-          paychannel: { deposit: 1 },
+          paychannel: { deposit: 100 },
           gamedata: []
         }, (connection, info) => {
           const result = { connection: connection, info: info }
@@ -47,15 +55,12 @@ describe('Test normal', () => {
   })
 
   test('Game', async done => {
-    let bet = 1
-    let num = 33333
-
+    let bet = 100
+    let num = Utils.randomInteger(0, 65530)
+    
     const game = await page.evaluate((bet, num) => {
       return new Promise((resolve, reject) => {
-        const randomHash = window.DCLib.randomHash({
-          bet: 1,
-          gamedata: [33333]
-        })
+        const randomHash = window.DCLib.randomHash({ bet: bet, gamedata: [num] })
 
         window.Dice.Game(bet, num, randomHash)
           .then(res => {

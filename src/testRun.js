@@ -15,15 +15,13 @@ function unit() {
 async function integration () {
   process.env.TARGET_TEST = 'integration'
   pm2.connect(err => {
-    if (err) {
-      throw new Error(err)
-    }
+    if (err) { throw new Error(err) }
 
     pm2.start({
       name: 'bankroller',
       cwd: path.join(_config.protocolDir, './bankroller-core'),
       script: 'npm',
-      args: 'start'
+      args: 'run start:dev'
     }, (err, apps) => {
       if (err) { throw new Error(err) }
     })
@@ -36,9 +34,9 @@ async function integration () {
     cwd: libDirectory
   })
 
-  await buildLib
+  buildLib
     .on('error', err => { throw new Error(err) })
-    .on('exit', async code => {
+    .on('exit', code => {
       if (code !== 0) {
         throw new Error('Error: Library not build')
       } else {
@@ -48,13 +46,14 @@ async function integration () {
         readFileStream.pipe(writeFileStream)
         
         jest.runCLI(
-          { config: path.resolve(__dirname, 'tests/jest', 'initConfig.js') },
+          {
+            runInBand: true,
+            config: path.resolve(__dirname, 'tests/jest', 'initConfig.js')
+          },
           [ path.join(__dirname, './tests/integration') ]
         ).then(() => {
           pm2.delete('bankroller', err => {
-            if (err) {
-              throw new Error(err)
-            }
+            if (err) { throw new Error(err) }
             
             pm2.disconnect()
             process.exit()
