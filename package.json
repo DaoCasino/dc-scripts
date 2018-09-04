@@ -7,7 +7,7 @@
     "postinstall": "sh scripts/postinstall.sh",
     "preinstall": "sh scripts/preinstall.sh",
     "start": "cd ./_env && docker-compose up -d dc_protocol",
-    "migrate": "truffle migrate --reset --compile-all"
+    "migrate": "truffle migrate --reset"
   },
   "bin": {
     "dc-scripts": "bin/index.js"

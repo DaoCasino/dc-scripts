@@ -15,7 +15,23 @@ module.exports = cmd => {
 
   containerUp.on('exit', code => {
     if (code === 0) {
-      Utils.copyContracts(path.join(process.cwd(), 'protocol'))
+      spawn('npm run migrate', {
+        shell: true,
+        stdio: 'inherit',
+        cwd: path.join(__dirname, '../')
+      })
+      .on('error', err => {
+        console.error(err)
+        process.exit()
+      })
+      .on('exit', code => {
+        if (code === 0) {
+          Utils.copyContracts(path.join(process.cwd(), 'protocol'))
+        } else {
+          console.error('Error with code: ', code)
+          process.exit(code)
+        }
+      })
     }
   })
 }
