@@ -7,9 +7,9 @@ RECREATE=$2
 cd `dirname "$0"`/../
 if [ ! "$(docker ps -q -f name=$SERVICE_NAME)" ]
 then
-	docker-compose up -d $SERVICE_NAME
+	docker-compose up -d --no-recreate $SERVICE_NAME
 else
-	rm -rf ./protocol/build ./protocol/dapp.contract.json
+	[ ! -z "$RECREATE" ] && rm -rf ./protocol/build ./protocol/dapp.contract.json
 	docker-compose up -d $RECREATE $SERVICE_NAME
 fi
 

@@ -30,11 +30,9 @@ function cloneRepo (repo, folderName, protocolDir) {
     startClone
       .on('err', err => reject(new Error(err)))
       .on('exit', code => {
-        if (code !== 0) {
-          reject(new Error(`Error: clone repo abort with code ${code}`))
-        }
-
-        resolve(targetPath)
+        (code !== 0)
+          ? reject(new Error(`Error: clone repo abort with code ${code}`))
+          : resolve(targetPath)
       })
   })
 }
@@ -77,12 +75,9 @@ module.exports = async pathToDirectory => {
 
       if (typeof pathRepo !== 'undefined') {
         (await npmInstall(pathRepo))
-        
         console.clear()
-        // spinner.info(`${repo} cloned and install`).start()
       }
     } catch (err) {
-      // spinner.fail('setup fail')
       throw new Error(err)
     }
   }
@@ -90,7 +85,5 @@ module.exports = async pathToDirectory => {
   _config.protocolDir = protocolDir
   
   const openConfig = fs.openSync(path.join(__dirname, '../workflow.config.json'), 'w')
-  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')
-  
-  // spinner.succeed('setup complete')
+  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')  
 }
