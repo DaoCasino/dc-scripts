@@ -5,19 +5,14 @@ const chalk   = require('chalk')
 const spawn   = require('child_process').spawn
 const _config = require('../workflow.config.json')
 
-let spinner = ora('protocol setup...')
-
 function npmInstall (pathRepo) {
   return new Promise((resolve, reject) => {
     spawn('npm install', { stdio: 'inherit', shell: true, cwd: pathRepo })
       .on('error', err => reject(new Error(err)))
       .on('exit', code => {
-        if (code !== 0) {
-          reject(code)
-        } else {
-          spinner.start()
-          resolve()
-        }
+        (code !== 0)
+          ? reject(code)
+          : resolve()
       })
   })
 }
@@ -32,14 +27,11 @@ function cloneRepo (repo, folderName, protocolDir) {
       cwd: protocolDir
     })
 
-    startClone.stderr.on('data', Err  => log.push(`Error: ${Err}`))
-    startClone.stdout.on('data', data => log.push(`${data}`))
-
     startClone
       .on('err', err => reject(new Error(err)))
       .on('exit', code => {
         if (code !== 0) {
-          reject(new Error(log.join('\n')))
+          reject(new Error(`Error: clone repo abort with code ${code}`))
         }
 
         resolve(targetPath)
@@ -87,10 +79,10 @@ module.exports = async pathToDirectory => {
         (await npmInstall(pathRepo))
         
         console.clear()
-        spinner.info(`${repo} cloned and install`).start()
+        // spinner.info(`${repo} cloned and install`).start()
       }
     } catch (err) {
-      spinner.fail('setup fail')
+      // spinner.fail('setup fail')
       throw new Error(err)
     }
   }
@@ -100,5 +92,5 @@ module.exports = async pathToDirectory => {
   const openConfig = fs.openSync(path.join(__dirname, '../workflow.config.json'), 'w')
   fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')
   
-  spinner.succeed('setup complete')
+  // spinner.succeed('setup complete')
 }
