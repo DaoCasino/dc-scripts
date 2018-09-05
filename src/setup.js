@@ -28,6 +28,7 @@ function cloneRepo (repo, folderName, protocolDir) {
     const targetPath = path.join(protocolDir, `/${folderName}`)
     const startClone = spawn(`git clone -b ${repo.branch} ${repo.link} ${folderName}`, {
       shell: true,
+      stdio: 'inherit',
       cwd: protocolDir
     })
 
