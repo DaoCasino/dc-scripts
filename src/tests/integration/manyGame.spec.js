@@ -6,17 +6,12 @@ let page    = false
 let browser = false
 
 beforeAll(async () => {
-  browser = await puppeteer.launch({
-    dumpio: true,
-    handleSIGINT: false,
-    rgs: [
-      '--disable-dev-shm-usage',
-      '--enable-features=NetworkService'
-    ],
-    timeout: 0
-  })
-  page = await browser.newPage()
-  
+  browser = await puppeteer.launch(Utils.browserConfig)
+  page    = await browser.newPage()
+
+  page.on('console', (msg) => { console.log(1) })
+  page.on('pageerror', (exceptionMessage) => { console.log(exceptionMessage); })
+
   process.on('SIGINT', async () => {
     await page.close()
     await browser.close()

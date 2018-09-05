@@ -25,7 +25,7 @@ function npmInstall (pathRepo) {
 function cloneRepo (repo, folderName, protocolDir) {
   return new Promise((resolve, reject) => {
     let log = []
-    const targetPath = path.join(protocolDir, `/${repo}`)
+    const targetPath = path.join(protocolDir, `/${folderName}`)
     const startClone = spawn(`git clone -b ${repo.branch} ${repo.link} ${folderName}`, {
       shell: true,
       cwd: protocolDir

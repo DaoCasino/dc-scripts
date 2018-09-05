@@ -3,10 +3,13 @@ const pm2     = require('pm2')
 const jest    = require('jest')
 const path    = require('path')
 const Utils   = require('./Utils')
+const upENV   = require('./upEnv')
 const spawn   = require('child_process').spawn
 const _config = require('../workflow.config.json')
 
 function unit() {
+  require('dotenv').config({ path: path.resolve(__dirname, '../.testenv') });
+
   const args = []
   
   args.push('--config', path.resolve(__dirname, 'tests/jest', 'initConfig.js'))
@@ -15,6 +18,17 @@ function unit() {
 
 async function integration () {
   process.env.TARGET_TEST = 'integration'
+
+  /* up Env for testing */
+  try {
+    await upENV('dc_protocol', '--force-recreate')
+    Utils.copyContracts(path.join(_config.protocolDir, './dclib/protocol'))
+    Utils.copyContracts(path.join(_config.protocolDir, './bankroller-core/protocol'))
+  } catch (err) {
+    console.error(err)
+    process.exit()
+  }
+
   pm2.connect(err => {
     if (err) { throw new Error(err) }
 
@@ -25,11 +39,6 @@ async function integration () {
       args: 'run start'
     }, (err, apps) => {
       if (err) { throw new Error(err) }
-      
-      Utils.copyContracts(path.join(
-        _config.protocolDir,
-        './bankroller-core/protocol')
-      )
     })
   })
 
@@ -52,10 +61,7 @@ async function integration () {
         readFileStream.pipe(writeFileStream)
         
         jest.runCLI(
-          {
-            runInBand: true,
-            config: path.resolve(__dirname, 'tests/jest', 'initConfig.js')
-          },
+          { runInBand: true, config: path.resolve(__dirname, 'tests/jest', 'initConfig.js') },
           [ path.join(__dirname, './tests/integration') ]
         ).then(() => {
           pm2.delete('bankroller', err => {
@@ -70,8 +76,6 @@ async function integration () {
 }
 
 module.exports = cmd => {
-  require('dotenv').config({path: path.resolve(__dirname, '../.testenv')});
-
   const argv = process.argv.slice(2);
 
   (cmd.integration) && integration(); 

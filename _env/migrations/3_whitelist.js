@@ -1,5 +1,5 @@
 /* global artifacts web3 */
-const path   = require('path')
+const path = require('path')
 
 module.exports = async function (deployer, network) {
   const config = require('./config.js')(network)
@@ -14,30 +14,29 @@ module.exports = async function (deployer, network) {
   const GameWL   = new WEB3.eth.Contract(require(path.resolve(config.protocol.contracts + '/GameWL.json')).abi   , addr.GameWL   )
   const PlayerWL = new WEB3.eth.Contract(require(path.resolve(config.protocol.contracts + '/PlayerWL.json')).abi , addr.PlayerWL )
 
-  const opts = {
-    from     : web3.eth.accounts[0],
-    gas      : 6700000,
-    gasPrice : 22000000000
-  };
-
   (await GameWL.methods.addGame(myDAppGame.address)
-    .send(opts)
-    .on('error', function (error) {
-      console.log('error', error)
+    .send({
+      from: web3.eth.accounts[0],
+      gas: 6700000,
+      gasPrice: 120000000000
     })
-    .on('transactionHash', function (transactionHash) { console.log('transactionHash', transactionHash) })
-    .on('receipt', function (receipt) {
+    .on('transactionHash', transactionHash => {
+      console.log('transactionHash', transactionHash)
+    })
+    .on('receipt', receipt => {
       console.log('receipt',receipt)
     })
-    .on('confirmation', function (confirmationNumber, receipt) {
-      if (confirmationNumber < 3) console.log('confirmationNumber', confirmationNumber)
+    .on('confirmation', (confirmationNumber, receipt) => {
+      (confirmationNumber < 3) && console.log('confirmationNumber', confirmationNumber)
     })
-    .then(function (res) {
-      console.log('res', res)
+    .on('error', error => {
+      console.error('error', error)
+      process.exit(1)
     })
-    .catch(function (err) {
-      throw new Error(false, err)
-    }))
+    .then(res => console.log(res))
+    .catch(err => {
+      throw new Error(err)
+    }));
 
   const amount = WEB3.utils.toWei('1000')
   PlayerWL.methods.setAmountForPlayer(web3.eth.accounts[0], amount).send(opts)

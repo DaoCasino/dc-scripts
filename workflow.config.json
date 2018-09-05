@@ -4,12 +4,12 @@
  "protocolDir": "/Users/fanyshu/Documents/Projects/check/prot",
  "repo": {
   "dclib": {
-    "link": "git@gitlab.com:daocasino/DCLib.git",
-    "branch": "develop"
+   "link": "git@gitlab.com:daocasino/DCLib.git",
+   "branch": "develop"
   },
   "bankroller-core": {
-    "link": "git@gitlab.com:daocasino/bankroller-core.git",
-    "branch": "4sdk"
+   "link": "git@gitlab.com:daocasino/bankroller-core.git",
+   "branch": "4sdk"
   }
  }
 }

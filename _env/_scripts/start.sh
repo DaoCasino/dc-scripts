@@ -1,17 +1,17 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash
 sh `dirname "$0"`/check_docker.sh || exit 1
 
-PROTOCOL_DOCKER="dc_protocol"
-BANKROLLER_DOCKER="dc_bankroller"
-ARG=$1
+SERVICE_NAME=$1
+RECREATE=$2
 
 cd `dirname "$0"`/../
-if [ $ARG == $PROTOCOL_DOCKER ];
+if [ ! "$(docker ps -q -f name=$SERVICE_NAME)" ]
 then
-	if [ ! "$(docker ps -q -f name=$ARG)" ]
-	then
-		docker-compose up -d $ARG || sleep 3
-	fi
+	docker-compose up -d $SERVICE_NAME
 else
-	docker-compose up -d || sleep 3
+	rm -rf ./protocol/build ./protocol/dapp.contract.json
+	docker-compose up -d $RECREATE $SERVICE_NAME
 fi
+
+cd `dirname "$0"`/../../
+npm run migrate
