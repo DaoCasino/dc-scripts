@@ -41,7 +41,6 @@ function cloneRepo (repo, folderName, protocolDir) {
           reject(new Error(log.join('\n')))
         }
 
-        spinner.stop()
         resolve(targetPath)
       })
   })
@@ -78,8 +77,6 @@ module.exports = async pathToDirectory => {
       for correct work protocol recommended install ${_config.recomendNodeVersion} version
     `))
   }
-
-  spinner.start()
 
   for (let repo of Object.keys(_config.repo)) {
     try {
