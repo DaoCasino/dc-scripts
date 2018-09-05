@@ -1,15 +1,15 @@
 {
  "version": "0.0.1",
  "recomendNodeVersion": "10.8.1",
- "protocolDir": "/Users/fanyshu/Documents/Projects/check/prot",
+ "protocolDir": "/Users/fanyshu/Documents/Projects/check/protocol",
  "repo": {
   "dclib": {
-   "link": "git@gitlab.com:daocasino/DCLib.git",
-   "branch": "develop"
+   "link": "git@github.com:DaoCasino/DCLib.git",
+   "branch": "dc-scripts"
   },
   "bankroller-core": {
-   "link": "git@gitlab.com:daocasino/bankroller-core.git",
-   "branch": "4sdk"
+   "link": "git@github.com:DaoCasino/bankroller-core.git",
+   "branch": "dc-scripts"
   }
  }
 }

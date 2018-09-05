@@ -5,8 +5,8 @@ module.exports = {
     development: {
       host: '127.0.0.1',
       port: 1406,
-      gas: 7984452, // Block Gas Limit same as latest on Mainnet https://ethstats.net/
-      gasPrice: 2000000000, // same as latest on Mainnet https://ethstats.net/
+      gas: 6700000, // Block Gas Limit same as latest on Mainnet https://ethstats.net/
+      gasPrice: 1, // same as latest on Mainnet https://ethstats.net/
       network_id: '*'
     }
   },
