@@ -41,6 +41,11 @@ module.exports = async pathToDirectory => {
     ? path.join(process.cwd(), pathToDirectory)
     : path.join(process.cwd(), './');
 
+  _config.protocolDir = protocolDir
+
+  const openConfig = fs.openSync(path.join(__dirname, '../workflow.config.json'), 'w')
+  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')  
+  
   if (
     typeof _config.protocolDir !== 'string' &&
     _config.protocolDir === '' &&
@@ -80,9 +85,4 @@ module.exports = async pathToDirectory => {
       throw new Error(err)
     }
   }
-
-  _config.protocolDir = protocolDir
-  
-  const openConfig = fs.openSync(path.join(__dirname, '../workflow.config.json'), 'w')
-  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')  
 }

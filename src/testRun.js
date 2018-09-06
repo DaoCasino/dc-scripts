@@ -36,7 +36,7 @@ async function integration () {
       name: 'bankroller',
       cwd: path.join(_config.protocolDir, './bankroller-core'),
       script: 'npm',
-      args: 'run start'
+      args: 'run dev'
     }, (err, apps) => {
       if (err) { throw new Error(err) }
     })

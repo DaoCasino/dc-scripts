@@ -1,7 +1,7 @@
 {
  "version": "0.0.1",
  "recomendNodeVersion": "10.8.0",
- "protocolDir": "/Users/fanyshu/Documents/Projects/check/prot",
+ "protocolDir": "/Users/fanyshu/Documents/Projects/DCLabs/protocol",
  "repo": {
   "dclib": {
    "link": "git@github.com:DaoCasino/DCLib.git",
