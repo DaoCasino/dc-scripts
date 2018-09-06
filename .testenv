@@ -1,3 +1,4 @@
 DATA_PATH    = 'test'
-DATA_SUBPATH = '/'
 DC_NETWORK   = 'test'
+TARGET_TEST  = 'unit'
+DATA_SUBPATH = '/'

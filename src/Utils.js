@@ -1,5 +1,6 @@
-const ncp  = require('ncp').ncp
-const path = require('path')
+const ncp   = require('ncp').ncp
+const path  = require('path')
+const chalk = require('chalk')
 
 const browserConfig = {
   dumpio: true,
@@ -32,6 +33,21 @@ function randomInteger (min, max) {
   )
 }
 
+function exitOn (f) {
+  const actions = [ 'SIGINT', 'SIGTERM', 'SIGBREAK' ]
+
+  actions.forEach(el => {    
+    process.on(el, async () => {      
+      console.log('')
+      console.warn(chalk.yellow('WARNING: process out'))
+
+      await f.call()
+      process.exit(131)
+    })
+  })
+}
+
+module.exports.exit          = exitOn
 module.exports.browserConfig = browserConfig
 module.exports.copyContracts = copyContracts
 module.exports.randomInteger = randomInteger

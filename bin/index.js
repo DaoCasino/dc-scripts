@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 const test    = require('../src/testRun')
-const stop    = require('../src/stop')
 const start   = require('../src/start')
 const setup   = require('../src/setup')
 const remove  = require('../src/remove')
+const stopENV = require('../src/stopENV')
 const program = require('commander')
 
 program
@@ -30,7 +30,7 @@ program
 program
   .command('stop')
   .description('stop env for development')
-  .action(cmd => stop(cmd))
+  .action(cmd => stopENV(cmd))
 
 program
   .command('test')

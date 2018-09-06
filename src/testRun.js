@@ -5,26 +5,56 @@ const path    = require('path')
 const Utils   = require('./Utils')
 const upENV   = require('./upEnv')
 const spawn   = require('child_process').spawn
+const dotenv  = require('dotenv')
+const stopENV = require('./stopENV')
 const _config = require('../workflow.config.json')
 
-function unit() {
-  require('dotenv').config({ path: path.resolve(__dirname, '../.testenv') });
+Utils.exit(stopENV)
 
-  const args = []
-  
-  args.push('--config', path.resolve(__dirname, 'tests/jest', 'initConfig.js'))
-  jest.run(args)
+/**
+ * Start unit tests with
+ * Folder tests
+ */
+function unit() {
+  // Load enviroment Variable
+  dotenv.config({ path: path.join(__dirname, '../', '.testenv') });
+
+  /*
+   * Run jest tests with arguments
+   * --runInBand - start test serially in one process
+   * --config - start test with config
+   * [path/to/file] - path to config.file
+   */
+  jest.run([
+    '--runInBand',
+    '--config',
+    path.join(__dirname, 'tests/jest', 'initConfig.js')
+  ])
 }
 
+/**
+ * Start enviroment for integration
+ * tests and run Jest tests
+ */
 async function integration () {
   process.env.TARGET_TEST = 'integration'
 
-  /* up Env for testing */
   try {
-    await upENV('dc_protocol', '--force-recreate')
-    Utils.copyContracts(path.join(_config.protocolDir, './dclib/protocol'))
-    Utils.copyContracts(path.join(_config.protocolDir, './bankroller-core/protocol'))
+    /* 
+    * Start docker containers with arguments
+    * and migrate smart contracts with truffle
+    * then copy folder with smart contracts in DCLib
+    * or bankroller
+    */
+    await upENV('dc_protocol')
+      .then(() => Utils.copyContracts(path.join(_config.protocolDir, './dclib/protocol')))
+      .then(() => Utils.copyContracts(path.join(_config.protocolDir, './bankroller-core/protocol')))
   } catch (err) {
+    /** 
+     * If handle errors then
+     * stop docker containers and exit process
+    */
+    stopENV()
     console.error(err)
     process.exit()
   }
@@ -65,9 +95,13 @@ async function integration () {
           [ path.join(__dirname, './tests/integration') ]
         ).then(() => {
           pm2.delete('bankroller', err => {
-            if (err) { throw new Error(err) }
+            if (err) {
+              throw new Error(err)
+            }
             
+            stopENV()
             pm2.disconnect()
+            
             process.exit()
           })
         })
