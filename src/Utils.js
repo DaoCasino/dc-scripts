@@ -34,17 +34,16 @@ function randomInteger (min, max) {
 }
 
 function exitOn (f) {
-  const actions = [ 'SIGINT', 'SIGTERM', 'SIGBREAK' ]
+  [ 'SIGINT', 'SIGTERM', 'SIGBREAK' ]
+    .forEach(SIGNAL => {    
+      process.on(SIGNAL, () => {      
+        console.log('')
+        console.warn(chalk.yellow('WARNING: process out'))
 
-  actions.forEach(el => {    
-    process.on(el, async () => {      
-      console.log('')
-      console.warn(chalk.yellow('WARNING: process out'))
-
-      await f.call()
-      process.exit(131)
+        process.stdin = null
+        f().then(() => process.exit(131))
+      })
     })
-  })
 }
 
 module.exports.exit          = exitOn
