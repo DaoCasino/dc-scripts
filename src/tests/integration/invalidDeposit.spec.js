@@ -22,10 +22,10 @@ beforeAll(async () => {
   await page.reload()
 })
 
-afterAll(async () => {
-  await page.close()
-  await browser.close()
+afterAll(() => {
+  browser.close()
 })
+
 
 describe('Test: Invalid deposit', () => {
   test('Connect', async done => {

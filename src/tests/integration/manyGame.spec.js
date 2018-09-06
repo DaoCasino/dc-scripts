@@ -12,9 +12,8 @@ beforeAll(async () => {
   page.on('console', (msg) => { console.log(1) })
   page.on('pageerror', (exceptionMessage) => { console.log(exceptionMessage); })
 
-  process.on('SIGINT', async () => {
-    await page.close()
-    await browser.close()
+  process.on('SIGINT', () => {
+    browser.close()
     process.exit(130)
   })
 
@@ -23,10 +22,10 @@ beforeAll(async () => {
   await page.reload()
 })
 
-afterAll(async () => {
-  await page.close()
-  await browser.close()
+afterAll(() => {
+  browser.close()
 })
+
 
 describe('Test: Many games', () => {
   test('Connect', async done => {
