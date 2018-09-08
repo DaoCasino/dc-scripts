@@ -1,4 +1,4 @@
-# dc-scripts | Command line interface for lith init, develop, test and release DC-PROTOCOL
+# dc-scripts | Command line interface for with init, develop, test and release DC-PROTOCOL
 
 ## install
 ___
