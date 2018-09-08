@@ -1,21 +1,23 @@
 const path      = require('path')
 const Utils     = require('../../Utils')
+const _config   = require('../../config/config.json')
 const puppeteer = require('puppeteer')
 
 let page    = false
 let browser = false
 
 beforeAll(async () => {
-  browser = await puppeteer.launch(Utils.browserConfig)
+  browser = await puppeteer.launch(_config.puppeterBrowserConfig)
   page    = await browser.newPage()
-
-  page.on('console', (msg) => { console.log(1) })
-  page.on('pageerror', (exceptionMessage) => { console.log(exceptionMessage) })
-
-  process.on('SIGINT', () => {
+  
+  Utils.exitListener(() => {
+    page.close()
     browser.close()
     process.exit(130)
   })
+
+  page.on('console', (msg) => { console.log(1) })
+  page.on('pageerror', (exceptionMessage) => { console.log(exceptionMessage) })
 
   await page.goto(`file://${path.join(__dirname, '../dapp')}/index.html`)
   await page.waitForSelector('#content')

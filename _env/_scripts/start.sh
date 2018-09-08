@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 sh `dirname "$0"`/check_docker.sh || exit 1
 
-SERVICE_NAME=$1
-RECREATE=$2
+RECREATE=$1
+SERVICE_NAME=$2
 
 cd `dirname "$0"`/../
 if [ ! "$(docker ps -q -f name=$SERVICE_NAME)" ]
@@ -14,4 +14,4 @@ else
 fi
 
 cd `dirname "$0"`/../../
-npm run migrate
+npm run migrate --compile-all

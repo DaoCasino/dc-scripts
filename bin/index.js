@@ -12,9 +12,9 @@ program
   .description('CLI for light development with DC protocol')
 
 program
-  .command('setup')
-  .description('Setup DC Development ENV')
-  .action(cmd => setup(program.args[0]))
+  .command('setup [dir]')
+  .option('-y, --yarn', 'Use yarn package manager for install dependencies')
+  .action((dir, cmd) => setup(cmd, dir))
 
 program
   .command('uninstall')
