@@ -60,8 +60,8 @@ async function integration () {
       const libContracts      = path.join(libDirectory, './protocol')
       const bankrollContracts = path.join(BankrollerDir, './protocol');
 
-      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts)
-      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts)
+      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
+      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
       process.exit(code)
     }
   }
