@@ -4,6 +4,11 @@ echo ""
 echo " * Check docker & docker-compose is installed..."
 echo ""
 
+WITH_SUDO=""
+if [ $(uname) = Linux ]; then 
+  WITH_SUDO="sudo"
+fi
+
 if ! [ -x "$(command -v docker-compose)" ]; then
 
   URL="https://docs.docker.com/install"
@@ -36,12 +41,5 @@ echo ""
 echo " * Check docker daemon is run..."
 echo ""
 
-if [ "$OSTYPE" = linux-gnu ]; then 
-  whithSudo = "sudo"
-else 
-  whithSudo = ""
-fi
-
-$withSudo docker ps || sleep 7
-
+$WITH_SUDO docker ps || exit 1
 clear
