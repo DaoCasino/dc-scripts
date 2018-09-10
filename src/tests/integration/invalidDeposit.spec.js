@@ -1,6 +1,6 @@
 const path      = require('path')
 const Utils     = require('../../Utils')
-const _config   = require('../../config/config.json')
+const _config   = require('../../config/config')
 const puppeteer = require('puppeteer')
 
 let page    = false
@@ -45,7 +45,6 @@ describe('Test: Invalid deposit', () => {
         })
       })
     } catch (err) {
-      console.log(11111111111111, err)
       expect(err).toBeInstanceOf(Error)
       done()
     }

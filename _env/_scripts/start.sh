@@ -12,11 +12,11 @@ fi
 cd `dirname "$0"`/../
 if [ ! "$(docker ps -q -f name=$SERVICE_NAME)" ]
 then
-	$WITH_SUDO docker-compose up -d --no-recreate $SERVICE_NAME
+	$WITH_SUDO docker-compose up -d $RECREATE $SERVICE_NAME
 else
 	[ ! -z "$RECREATE" ] && rm -rf ./protocol/build ./protocol/dapp.contract.json
 	$WITH_SUDO docker-compose up -d $RECREATE $SERVICE_NAME
 fi
 
 cd `dirname "$0"`/../../
-$WITH_SUDO npm run migrate --compile-all
+$WITH_SUDO npm run migrate

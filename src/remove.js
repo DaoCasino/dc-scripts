@@ -1,88 +1,41 @@
-const fs      = require('fs')
-const ora     = require('ora')
-const path    = require('path')
-const chalk   = require('chalk')
-const _config = require('./config/config.json')
+const fs    = require('fs')
+const path  = require('path')
+const chalk = require('chalk')
+const Utils = require('./Utils')
 
 /**
- * init a cli spinner
+ * init path to projects directory
  */
-const spinner = ora('uninstall protocol...')
-
-/**
- * clear projects directory path
- * and update config.json file
- */
-function clearConfig (_config) {
-  _config.projectsDir = ''
-
-  const openConfig = fs.openSync(path.join(__dirname, './config/config.json'), 'w')
-  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')  
-}
-
-function rmFolder (path) {
-  try {
-    /**
-     * check files in directory
-     * and call functions for each of them
-     */
-    fs.readdirSync(path).forEach(file => {
-      /**
-       * path to target file
-       */
-      const curPath = path + '/' + file
-      
-      /**
-       * check availability file and
-       * check isDirectory after delete this or recursive call
-       */
-      if (typeof curPath !== 'undefined') {
-        (fs.lstatSync(curPath).isDirectory())
-          ? rmFolder(curPath)
-          : fs.unlinkSync(curPath)
-      } 
-    })
-
-    fs.rmdirSync(path)
-  } catch (err) {
-    spinner.fail('uninstall fail')
-    console.error(chalk.red(err))
-    process.exit()
-  }
-}
+const deletePath = path.join(__dirname, '../pathToProject.json')
 
 module.exports = function () {
-  /**
-   * init path to projects directory
-   */
-  const deletePath = _config.projectsDir
-
   /**
    * Check config on availability
    * path to projects directory
    */
-  if (typeof deletePath === 'undefined' || deletePath === '') {
-    console.error(chalk.red('Error: no protocol path'))
+  if (!fs.existsSync(deletePath)) {
+    console.error(chalk.red('Error: no protocol path file'))
     process.exit()
   }
-
-  /**
-   * clear path in a config
-   */
-  clearConfig(_config)
-
+  
   /**
    * Check availability directory with path
    */
-  if (!fs.existsSync(deletePath)) {
+  if (!fs.existsSync(require(deletePath))) {
     console.error(chalk.red('Error: protocol directory undefined'))
+    
+    fs.unlinkSync(deletePath)
     process.exit()
   }
   
   /**
    * Delete directory with path
    */
-  spinner.start()
-  rmFolder(deletePath)
-  spinner.succeed('uninstall complete')
+  Utils.rmFolder(require(deletePath))
+  console.log(require(deletePath), 'deleted')
+
+  /**
+   * Delete file in which path to projects
+   */
+  fs.unlinkSync(deletePath)
 }

@@ -1,9 +1,9 @@
 const path = require('path')
 
 module.exports = {
-  rootDir: path.resolve(__dirname, '../../'),
+  rootDir: path.join(__dirname, '../../tests'),
   roots: ['integration'],
-  reporters: [path.resolve(__dirname, '../../tests/jest/reporter.js')],
+  reporters: [path.join(__dirname, '../../tests/jest/reporter.js')],
   testPathIgnorePatterns: ['/node_modules/'],
-  setupTestFrameworkScriptFile: path.resolve(__dirname, '../../tests/jest/setup.js')
+  setupTestFrameworkScriptFile: path.join(__dirname, '../../tests/jest/setup.js')
 }

@@ -5,7 +5,6 @@ const Utils   = require('./Utils')
 const upENV   = require('./upEnv')
 const dotenv  = require('dotenv')
 const stopENV = require('./stopENV')
-const _config = require('./config/config.json')
 
 /**
  * Start unit tests with
@@ -35,10 +34,38 @@ function unit() {
 async function integration () {
   // Set ENV for tests
   process.env.TARGET_TEST = 'integration'
+  // PATH for projects directory
+  const pathToProjectJSON = path.join(__dirname, '../pathToProject.json')
+  /**
+   * Check avalability file with path for projects
+   */
+  if (!fs.existsSync(pathToProjectJSON)) {
+    console.error('Error: projects not creating, please use dc-scripts setup [dirname]')
+    process.exit(1)
+  }
+
   // PATH for protocol projects
-  const libDirectory  = path.join(_config.projectsDir, './dclib')
-  const BankrollerDir = path.join(_config.projectsDir, './bankroller-core')
+  const libDirectory  = path.join(require(pathToProjectJSON), './dclib')
+  const BankrollerDir = path.join(require(pathToProjectJSON), './bankroller_core')
   
+  /**
+   * Function for exit
+   * she stop Env docker containers
+   * and delete contracts paths 
+   */
+  async function exit (code = 0) {
+    const stopDockerContainer = await stopENV()
+
+    if (stopDockerContainer) {
+      const libContracts      = path.join(libDirectory, './protocol')
+      const bankrollContracts = path.join(BankrollerDir, './protocol');
+
+      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts)
+      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts)
+      process.exit(code)
+    }
+  }
+
   try {
     /* 
     * Start docker containers with arguments
@@ -46,7 +73,7 @@ async function integration () {
     * then copy folder with smart contracts in DCLib
     * or bankroller
     */
-    await upENV({ sevice : 'dc_protocol', recreate : true })
+    await upENV({ sevice : 'dc_protocol' })
     /**
      * Copy contracts in protocol projects
      */
@@ -85,27 +112,26 @@ async function integration () {
     console.error(err)
     
     await Utils.deletePM2Service('bankroller')
-    await stopENV()
-    process.exit(301)
+    exit(301)
   }
   
-  /**
-   * Run jest tests with integration config
-   */
-  jest.runCLI(
-    { runInBand: true, config: path.resolve(__dirname, 'tests/jest', 'initConfig.js') },
-    [ path.join(__dirname, './tests/integration') ]
-  ).then(async () => {
-    await Utils.deletePM2Service('bankroller')
-    await stopENV()
-    process.exit()
-  }).catch(async err => {
-    console.error(err)
+  try {
+    /**
+     * Run jest tests with integration config
+     */
+    const testStart =  await jest.runCLI(
+      { runInBand: true, config: path.resolve(__dirname, 'tests/jest', 'initConfig.js') },
+      [path.join(__dirname, './tests/integration')])
 
+    if (testStart) {
+      await Utils.deletePM2Service('bankroller')
+      exit()
+    }
+  } catch (err) {
+    console.error(err)
     await Utils.deletePM2Service('bankroller')
-    await stopENV()
-    process.exit()
-  })
+    exit(301)
+  }
 }
 
 module.exports = cmd => {

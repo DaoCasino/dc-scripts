@@ -1,6 +1,6 @@
 const path      = require('path')
 const Utils     = require('../../Utils')
-const _config   = require('../../config/config.json')
+const _config   = require('../../config/config')
 const puppeteer = require('puppeteer')
 
 let page    = false

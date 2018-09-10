@@ -1,6 +1,8 @@
+const fs    = require('fs')
 const pm2   = require('pm2')
 const ncp   = require('ncp').ncp
 const path  = require('path')
+const chalk = require('chalk')
 const spawn = require('child_process').spawn
 
 function randomInteger (min, max) {
@@ -14,11 +16,7 @@ function copyContracts (target_path) {
     ncp(
       path.join(__dirname, '../_env/protocol'),
       target_path,
-      err => {
-        (err) && reject(err)
-        console.log('done')
-        resolve(true)
-      }
+      err => (err) ? reject(err) : resolve(target_path)
     )
   })
 }
@@ -64,6 +62,10 @@ function startingCliCommand (cmd, target) {
 }
 
 function exitListener (f) {
+  /**
+   * listening for array signalls
+   * and call funct wich argument
+   */
   [ 'SIGINT', 'SIGTERM', 'SIGBREAK' ]
     .forEach(SIGNAL => {    
       process.on(SIGNAL, () => {      
@@ -75,6 +77,37 @@ function exitListener (f) {
     })
 }
 
+function rmFolder (path) {
+  try {
+    /**
+     * check files in directory
+     * and call functions for each of them
+     */
+    fs.readdirSync(path).forEach(file => {
+      /**
+       * path to target file
+       */
+      const curPath = path + '/' + file
+      
+      /**
+       * check availability file and
+       * check isDirectory after delete this or recursive call
+       */
+      if (typeof curPath !== 'undefined') {
+        (fs.lstatSync(curPath).isDirectory())
+          ? rmFolder(curPath)
+          : fs.unlinkSync(curPath)
+      } 
+    })
+
+    fs.rmdirSync(path)
+  } catch (err) {
+    console.error(chalk.red(err))    
+    process.exit()
+  }
+}
+
+module.exports.rmFolder           = rmFolder
 module.exports.exitListener       = exitListener
 module.exports.copyContracts      = copyContracts
 module.exports.randomInteger      = randomInteger

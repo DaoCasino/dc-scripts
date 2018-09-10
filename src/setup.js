@@ -2,7 +2,7 @@ const fs      = require('fs')
 const path    = require('path')
 const chalk   = require('chalk')
 const spawn   = require('child_process').spawn
-const _config = require('./config/config.json')
+const _config = require('./config/config')
 
 /**
  * cloned Repository with arguments 
@@ -58,13 +58,18 @@ function installProject (pathToRepo, useYarn = false) {
 
 module.exports = async (cmd, pathToDir) => {
   /**
+   * Path for file in which path to project directory
+   */
+  const pathToFileJSON = path.join(__dirname, '../pathToProject.json')
+  console.log(pathToFileJSON)
+  /**
    * check empty protocol directory
-   * for path in config file and exit process 
+   * for path in project path file and exit process 
    * if directory not empty
    */
-  if (_config.projectsDir !== '') {
+  if (fs.existsSync(pathToFileJSON)) {
     console.error(chalk.red(`
-      Protocol is installed with folder ${chalk.green(_config.projectsDir)}
+      Protocol is installed with folder ${chalk.green(require(pathToFileJSON))}
       if have reinstall then use:
       ${chalk.yellow('dc-scripts remove && dc-scripts setup [nameDir]')}
     `))
@@ -132,7 +137,9 @@ module.exports = async (cmd, pathToDir) => {
    * Update config file
    * add path to projects directory
    */
-  _config.projectsDir = pathToCreate
-  const openConfig = fs.openSync(path.join(__dirname, './config/config.json'), 'w')
-  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')
+  const pathToProject  = JSON.stringify(pathToCreate, null, ' ')
+
+  const openFile = fs.openSync(pathToFileJSON, 'w')
+  fs.writeSync(openFile, pathToProject, 0, 'utf-8')
+  fs.closeSync(openFile)
 }

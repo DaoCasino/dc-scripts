@@ -1,7 +1,9 @@
 #!/usr/bin/env node
+const path    = require('path')
 const test    = require('../src/testRun')
 const start   = require('../src/start')
 const setup   = require('../src/setup')
+const Utils   = require('../src/Utils')
 const remove  = require('../src/remove')
 const stopENV = require('../src/stopENV')
 const program = require('commander')
@@ -30,7 +32,12 @@ program
 program
   .command('stop')
   .description('stop env for development')
-  .action(cmd => stopENV(cmd))
+  .action(cmd => stopENV(cmd)
+    .then(() => Utils.rmFolder(path.join(process.cwd(), 'protocol')))
+    .catch(err => {
+      console.error(err)
+      process.exit(1)
+    }))
 
 program
   .command('test')
