@@ -39,8 +39,8 @@ async function Integration (params) {
   // Set ENV for tests
   process.env.TARGET_TEST = 'integration'
 
-  const DC_LIB          = params.dclib      || process.cwd()
-  const BANKROLLER_CORE = params.bankroller || process.cwd()
+  const DC_LIB          = params.paths.dclib      || process.cwd()
+  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
 
   console.log(DC_LIB, BANKROLLER_CORE)
 
