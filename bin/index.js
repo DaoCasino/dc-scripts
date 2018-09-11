@@ -43,9 +43,6 @@ program
   .command('test')
   .description('Start testing with options')
   .usage('[options]')
-  .option('-u, --unit', 'Start unit tests')
-  .option('-p, --performance', 'Start performance tests')
-  .option('-i, --integration', 'Start integration tests')
-  .action(cmd => test(cmd))
+  .action(cmd => test.Unit(cmd))
 
 program.parse(process.argv)

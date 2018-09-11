@@ -13,17 +13,5 @@ module.exports = {
       branch: 'dc-scripts'
     }
   
-  },
-
-  puppeterBrowserConfig: {
-    dumpio: true,
-    handleSIGINT: false,
-    timeout: 0,
-    rgs: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--enable-features=NetworkService'
-    ]
   }
 }
