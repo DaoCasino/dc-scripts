@@ -1,30 +1,33 @@
 const path      = require('path')
-const puppeteer = require('puppeteer');
+const Utils     = require('../../Utils')
+const _config   = require('../../config/config')
+const puppeteer = require('puppeteer')
 
 let page    = false
 let browser = false
 
 beforeAll(async () => {
-  browser = await puppeteer.launch({
-    dumpio: false,
-    rgs: [
-      '--disable-dev-shm-usage',
-      '--enable-features=NetworkService'
-    ],
-    timeout: 0
+  browser = await puppeteer.launch(_config.puppeterBrowserConfig)
+  page    = await browser.newPage()
+
+  Utils.exitListener(() => {
+    page.close()
+    browser.close()
+    process.exit(130)
   })
 
-  page = await browser.newPage()
+  page.on('console', (msg) => { console.log(1) })
+  page.on('pageerror', (exceptionMessage) => { console.log(exceptionMessage); })
+
   await page.goto(`file://${path.join(__dirname, '../dapp')}/index.html`)
   await page.waitForSelector('#content')
   await page.reload()
 })
 
-afterAll(() => {
-  browser.close()
-})
+afterAll(() => browser.close())
 
-describe('Test normal', () => {
+
+describe('Test: Valid game', () => {
   test('Connect', async done => {
     const connect = await page.evaluate(() => {
       return new Promise((resolve, reject) => {
@@ -48,14 +51,11 @@ describe('Test normal', () => {
 
   test('Game', async done => {
     let bet = 1
-    let num = 33333
+    let num = Utils.randomInteger(0, 65530)
 
     const game = await page.evaluate((bet, num) => {
       return new Promise((resolve, reject) => {
-        const randomHash = window.DCLib.randomHash({
-          bet: 1,
-          gamedata: [33333]
-        })
+        const randomHash = window.DCLib.randomHash({ bet: bet, gamedata: [num] })
 
         window.Dice.Game(bet, num, randomHash)
           .then(res => {

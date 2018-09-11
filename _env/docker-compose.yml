@@ -15,7 +15,7 @@ services:
     ports:
       - 1406:8545
     volumes:
-      - ${TARGET_PATH}:/protocol
+      - ./protocol:/protocol
     networks:
        - dc_network
   
@@ -29,7 +29,7 @@ services:
     image:
       daocasino/bankroller
     volumes:
-      - ${TARGET_PATH}:/protocol
+      - ./protocol:/protocol
       - ./bankroller/dapps/:/bankroller/data_sdk/dapps/
     entrypoint: 
       ["sh", "./run_sdk_env.sh"]

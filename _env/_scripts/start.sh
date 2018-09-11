@@ -1,34 +1,22 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash
 sh `dirname "$0"`/check_docker.sh || exit 1
 
+RECREATE=$1
+WHITH_SUDO=""
+SERVICE_NAME=$2
+
+if [ $(uname) = Linux ]; then 
+  WITH_SUDO="sudo"
+fi
+
 cd `dirname "$0"`/../
-
-# First run check and notice
-mkdir -p ./tmp
-file="./tmp/run.txt"
-if [ -f "$file" ]
-	then
-		echo ""
-	else
-		echo "first_run" > $file
-		clear
-		sh _scripts/hello.sh || exit 1
+if [ ! "$(docker ps -q -f name=$SERVICE_NAME)" ]
+then
+	$WITH_SUDO docker-compose up -d $RECREATE $SERVICE_NAME
+else
+	[ ! -z "$RECREATE" ] && rm -rf ./protocol/build ./protocol/dapp.contract.json
+	$WITH_SUDO docker-compose up -d $RECREATE $SERVICE_NAME
 fi
 
-
-
-clear
-echo ""
-echo " * Run DaoCasino protocol in TestRPC(ganache) and bankroller-node"
-echo ""
-mkdir -p ./protocol
-
-if [ "$OSTYPE" = linux-gnu ]; then 
-  whithSudo = "sudo"
-else 
-  whithSudo = ""
-fi
-
-$withSudo docker ps || sleep 7
-
-docker-compose up -d
+cd `dirname "$0"`/../../
+$WITH_SUDO npm run migrate

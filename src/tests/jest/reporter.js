@@ -1,17 +1,15 @@
-const pm2        = require('pm2')
 const ora        = require('ora')
 const logSymbols = require('log-symbols');
 
 class Reporter {
   constructor(_config, _options) {
+    this.ora      = ora('Testing...')
     this._config  = _config
     this._options = _options
     this.succeed  = true
   }
 
-  onRunStart() {
-    this.ora = ora('Testing...').start()
-  }
+  onRunStart() { this.ora.start() }
   
   onRunComplete(test, results) {
     (this.succeed)

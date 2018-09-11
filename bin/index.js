@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+const path    = require('path')
 const test    = require('../src/testRun')
-const stop    = require('../src/stop')
 const start   = require('../src/start')
 const setup   = require('../src/setup')
+const Utils   = require('../src/Utils')
 const remove  = require('../src/remove')
+const stopENV = require('../src/stopENV')
 const program = require('commander')
 
 program
@@ -12,9 +14,9 @@ program
   .description('CLI for light development with DC protocol')
 
 program
-  .command('setup')
-  .description('Setup DC Development ENV')
-  .action(cmd => setup(program.args[0]))
+  .command('setup [dir]')
+  .option('-y, --yarn', 'Use yarn package manager for install dependencies')
+  .action((dir, cmd) => setup(cmd, dir))
 
 program
   .command('uninstall')
@@ -30,7 +32,12 @@ program
 program
   .command('stop')
   .description('stop env for development')
-  .action(cmd => stop(cmd))
+  .action(cmd => stopENV(cmd)
+    .then(() => Utils.rmFolder(path.join(process.cwd(), 'protocol')))
+    .catch(err => {
+      console.error(err)
+      process.exit(1)
+    }))
 
 program
   .command('test')

@@ -1,43 +1,41 @@
-const fs          = require('fs')
-const ora         = require('ora')
-const chalk       = require('chalk')
-const protocolDir = require('../workflow.config.json').protocolDir
+const fs    = require('fs')
+const path  = require('path')
+const chalk = require('chalk')
+const Utils = require('./Utils')
 
-const spinner = ora('uninstall protocol...')
+/**
+ * init path to projects directory
+ */
+const deletePath = path.join(__dirname, '../pathToProject.json')
 
-function rmFolder (path) {
-  try {
-    fs.readdirSync(path).forEach(file => {
-      const curPath = path + '/' + file
-      
-      if (typeof curPath !== 'undefined') {
-        (fs.lstatSync(curPath).isDirectory())
-          ? rmFolder(curPath)
-          : fs.unlinkSync(curPath)
-      } 
-    })
-
-    fs.rmdirSync(path)
-  } catch (err) {
-    spinner.fail('uninstall fail')
-    console.error(chalk.red(err))
+module.exports = function () {
+  /**
+   * Check config on availability
+   * path to projects directory
+   */
+  if (!fs.existsSync(deletePath)) {
+    console.error(chalk.red('Error: no protocol path file'))
     process.exit()
   }
-}
-
-module.exports = cmd => {
-  if (typeof protocolDir === 'undefined' || protocolDir === '') {
-    console.error(chalk.red('Error: no protocol path'))
-    process.exit()
-  }
-
-  if (!fs.existsSync(protocolDir)) {
+  
+  /**
+   * Check availability directory with path
+   */
+  if (!fs.existsSync(require(deletePath))) {
     console.error(chalk.red('Error: protocol directory undefined'))
+    
+    fs.unlinkSync(deletePath)
     process.exit()
   }
   
-  spinner.start()
-  
-  rmFolder(protocolDir)
-  spinner.succeed('uninstall complete')
+  /**
+   * Delete directory with path
+   */
+  Utils.rmFolder(require(deletePath))
+  console.log(require(deletePath), 'deleted')
+
+  /**
+   * Delete file in which path to projects
+   */
+  fs.unlinkSync(deletePath)
 }

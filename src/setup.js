@@ -1,73 +1,98 @@
 const fs      = require('fs')
-const ora     = require('ora')
 const path    = require('path')
 const chalk   = require('chalk')
 const spawn   = require('child_process').spawn
-const _config = require('../workflow.config.json')
+const _config = require('./config/config')
 
-let spinner = ora('protocol setup...')
+/**
+ * cloned Repository with arguments 
+ */
+function cloneRepo (params = false) {
+  if (!params) return
 
-function npmInstall (pathRepo) {
   return new Promise((resolve, reject) => {
-    spawn('npm install', { stdio: 'inherit', shell: true, cwd: pathRepo })
-      .on('error', err => reject(new Error(err)))
-      .on('exit', code => {
-        if (code !== 0) {
-          reject(code)
-        } else {
-          spinner.start()
-          resolve()
-        }
-      })
-  })
-}
-
-function cloneRepo (repo, protocolDir) {
-  return new Promise((resolve, reject) => {
-    let log = []
-    const targetPath = path.join(protocolDir, `/${repo}`)
-    const startClone = spawn(`git clone ${_config.repo[repo]} ${repo}`, {
+    const repoUrl     = params.repo.link 
+    const dirName     = params.dirName     || ''
+    const branchName  = params.repo.branch || 'master'
+    const projectsDir = params.projectsDir || process.cwd()
+    /**
+     * create child_process [git clone]
+     */
+    const gitClone = spawn(`git clone -b ${branchName} ${repoUrl} ${dirName}`, {
       shell: true,
-      cwd: protocolDir
+      stdio: 'inherit',
+      cwd: projectsDir
     })
-
-    startClone.stderr.on('data', Err  => log.push(`Error: ${Err}`))
-    startClone.stdout.on('data', data => log.push(`${data}`))
-
-    startClone
+  
+    gitClone
       .on('err', err => reject(new Error(err)))
       .on('exit', code => {
-        if (code !== 0) {
-          reject(new Error(log.join('\n')))
-        }
-
-        spinner.stop()
-        resolve(targetPath)
+        (code !== 0 || code === null)
+          ? reject(new Error(`Error: clone repo abort with code ${code}`))
+          : resolve(path.join(projectsDir, dirName))
       })
   })
 }
 
-module.exports = async pathToDirectory => {
-  const protocolDir = (typeof pathToDirectory !== 'object')
-    ? path.join(process.cwd(), pathToDirectory)
-    : path.join(process.cwd(), './');
+function installProject (pathToRepo, useYarn = false) {
+  if (!pathToRepo) return
 
-  if (
-    typeof _config.protocolDir !== 'string' &&
-    _config.protocolDir === '' &&
-    _config.protocolDir === ' '
-  ) {
-    throw new Error(chalk.red(`
-      Protocol is installed with folder ${chalk.green(_config.protocolDir)}
+  return new Promise((resolve, reject) => {
+    /**
+     * If useYarn = true then use yarn package manager
+     */
+    const command = (useYarn) ? 'yarn install' : 'npm install'
+  
+    /**
+     * Create child_process install with package manager
+     */
+    spawn(command, { stdio: 'inherit', shell: true, cwd: pathToRepo })
+      .on('error', err => reject(err))
+      .on('exit', code => {
+        (code !== 0 || code === null)
+          ? reject(new Error(`Error: crash install dependencies. Exit code: ${code}`))
+          : resolve(true)
+      })
+  })
+}
+
+module.exports = async (cmd, pathToDir) => {
+  /**
+   * Path for file in which path to project directory
+   */
+  const pathToFileJSON = path.join(__dirname, '../pathToProject.json')
+  console.log(pathToFileJSON)
+  /**
+   * check empty protocol directory
+   * for path in project path file and exit process 
+   * if directory not empty
+   */
+  if (fs.existsSync(pathToFileJSON)) {
+    console.error(chalk.red(`
+      Protocol is installed with folder ${chalk.green(require(pathToFileJSON))}
       if have reinstall then use:
-      ${chalk.yellow('dc-scripts remove && dc-scripts setup [foldername]')}
+      ${chalk.yellow('dc-scripts remove && dc-scripts setup [nameDir]')}
     `))
+
+    process.exit()
   }
 
-  (!fs.existsSync(protocolDir)) && fs.mkdirSync(protocolDir) 
-
-  console.clear()
+  /**
+   * If in arguments there is path
+   * then create directory with arguments path
+   * else create in target directory
+   */
+  const pathToCreate = (typeof pathToDir !== 'undefined')
+    ? path.join(process.cwd(), pathToDir)
+    : path.join(process.cwd(), './');
   
+  (!fs.existsSync(pathToCreate)) && fs.mkdirSync(pathToCreate) 
+  console.clear()
+
+  /**
+   * Check target nodejs version
+   * and warning if target node version less recomended
+   */
   if (process.versions.node < _config.recomendNodeVersion) {
     console.warn(chalk.yellow(`
       Your node js less current versions
@@ -79,28 +104,42 @@ module.exports = async pathToDirectory => {
     `))
   }
 
-  spinner.start()
-
-  for (let repo of Object.keys(_config.repo)) {
+  /**
+   * Creating and install repositories
+   */
+  for (let project of Object.keys(_config.repo)) {
     try {
-      const pathRepo = await cloneRepo(repo, protocolDir)
+      /**
+       * Clone repository
+       * returns path to cloned repo
+       */
+      const projectPath = await cloneRepo({
+        repo        : _config.repo[project],
+        dirName     : project,
+        projectsDir : pathToCreate
+      })
 
-      if (typeof pathRepo !== 'undefined') {
-        (await npmInstall(pathRepo))
-        
+      /**
+       * if path to cloned repo not empty
+       * else instal dependencies with package manager
+       */
+      if (projectPath) {
+        await installProject(projectPath, (cmd.yarn) && true)
         console.clear()
-        spinner.info(`${repo} cloned and install`).start()
       }
     } catch (err) {
-      spinner.fail('setup fail')
-      throw new Error(err)
+      console.error(err)
+      process.exit(1)
     }
   }
 
-  _config.protocolDir = protocolDir
-  
-  const openConfig = fs.openSync(path.join(__dirname, '../workflow.config.json'), 'w')
-  fs.writeSync(openConfig, JSON.stringify(_config, null, ' '), 0, 'utf-8')
-  
-  spinner.succeed('setup complete')
+  /**
+   * Update config file
+   * add path to projects directory
+   */
+  const pathToProject  = JSON.stringify(pathToCreate, null, ' ')
+
+  const openFile = fs.openSync(pathToFileJSON, 'w')
+  fs.writeSync(openFile, pathToProject, 0, 'utf-8')
+  fs.closeSync(openFile)
 }

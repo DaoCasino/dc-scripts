@@ -4,12 +4,10 @@
   "description": "env for development DCLabs protocol",
   "main": "./src/index.js",
   "scripts": {
+    "_postinstall": "sh scripts/postinstall.sh",
+    "_preinstall": "sh scripts/preinstall.sh",
     "start": "cd ./_env && docker-compose up -d dc_protocol",
-    "migrate": "truffle migrate --reset",
-    "start:nobankroller": "",
-    "test:lib": "",
-    "test:bankroller": "",
-    "test:messaging": ""
+    "migrate": "truffle migrate"
   },
   "bin": {
     "dc-scripts": "bin/index.js"
@@ -27,12 +25,15 @@
   "author": "Ilya Shu <ilya.dev@dao.casino>",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.6.1",
+    "async-on-exit": "^0.1.0",
     "blessed": "^0.1.81",
     "chalk": "^2.4.1",
     "commander": "^2.17.1",
     "dotenv": "^6.0.0",
     "jest": "^23.5.0",
     "log-symbols": "^2.2.0",
+    "ncp": "^2.0.0",
     "ora": "^3.0.0",
     "pm2": "^3.0.4",
     "puppeteer": "^1.7.0",

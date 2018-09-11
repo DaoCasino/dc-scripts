@@ -3,7 +3,7 @@ const path = require('path')
 module.exports = {
   rootDir: process.cwd(),
   roots: ['src', 'lib', 'daap', 'test'],
-  reporters: [path.resolve(__dirname, 'reporter.js')],
+  reporters: [path.resolve(__dirname, '../../tests/jest/reporter.js')],
   testPathIgnorePatterns: ['/node_modules/'],
   collectCoverage: true,
   coverageDirectory: 'test/coverage',
@@ -16,5 +16,5 @@ module.exports = {
     '!**/vendor/**'
   ],
   verbose: false,
-  setupTestFrameworkScriptFile: path.resolve(__dirname, 'setup.js')
+  setupTestFrameworkScriptFile: path.resolve(__dirname, '../../tests/jest/setup.js')
 }

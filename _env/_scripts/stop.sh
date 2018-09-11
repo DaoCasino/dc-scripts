@@ -1,18 +1,10 @@
+sh `dirname "$0"`/check_docker.sh || exit 1
 
-clear
-echo ""
-echo " * Stop DC docker containers... "
-echo ""
+WITH_SUDO=""
 
-cd `dirname "$0"`/../
-
-if [ "$OSTYPE" = linux-gnu ]; then 
-  whithSudo="sudo"
-else 
-  whithSudo=""
+if [ $(uname) = Linux ]; then 
+  WITH_SUDO="sudo"
 fi
 
-
-$withSudo docker ps || sleep 7
-
-docker-compose down || exit 1
+cd `dirname "$0"`/../
+$WITH_SUDO docker-compose down || exit 1
