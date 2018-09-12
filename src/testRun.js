@@ -10,10 +10,9 @@ const stopENV = require('./stopENV')
  * Start unit tests with
  * Folder tests
  */
-function unit() {
+function Unit() {
   // Load enviroment Variable
   dotenv.config({ path: path.join(__dirname, '../', '.testenv') });
-
   /*
    * Run jest tests with arguments
    * --runInBand - start test serially in one process
@@ -22,31 +21,28 @@ function unit() {
    */
   jest.run([
     '--runInBand',
+    '--verbose',
     '--config',
-    path.join(__dirname, 'tests/jest', 'initConfig.js')
+    path.join(__dirname, 'jest', 'initConfig.js')
   ])
+}
+
+function Performance () {
+  console.log('performance')
 }
 
 /**
  * Start enviroment for integration
  * tests and run Jest tests
  */
-async function integration () {
-  // Set ENV for tests
-  process.env.TARGET_TEST = 'integration'
-  // PATH for projects directory
-  const pathToProjectJSON = path.join(__dirname, '../pathToProject.json')
-  /**
-   * Check avalability file with path for projects
-   */
-  if (!fs.existsSync(pathToProjectJSON)) {
-    console.error('Error: projects not creating, please use dc-scripts setup [dirname]')
+async function Integration (params) {
+  const DC_LIB          = params.paths.dclib      || process.cwd()
+  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
+
+  if (!fs.existsSync(DC_LIB) || !fs.existsSync(BANKROLLER_CORE)) {
+    console.error('DCLib or Bankroller is not define')
     process.exit(1)
   }
-
-  // PATH for protocol projects
-  const libDirectory  = path.join(require(pathToProjectJSON), './dclib')
-  const BankrollerDir = path.join(require(pathToProjectJSON), './bankroller_core')
   
   /**
    * Function for exit
@@ -57,8 +53,8 @@ async function integration () {
     const stopDockerContainer = await stopENV()
 
     if (stopDockerContainer) {
-      const libContracts      = path.join(libDirectory, './protocol')
-      const bankrollContracts = path.join(BankrollerDir, './protocol');
+      const libContracts      = path.join(DC_LIB, './protocol')
+      const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
 
       (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
       (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
@@ -77,17 +73,17 @@ async function integration () {
     /**
      * Copy contracts in protocol projects
      */
-    await Utils.copyContracts(path.join(libDirectory, './protocol'))
-    await Utils.copyContracts(path.join(BankrollerDir, './protocol'))
+    await Utils.copyContracts(path.join(DC_LIB, './protocol'))
+    await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
     /**
      * Start Build DCLib
      * and get build version in test dapp
      */
-    const buildLib = await Utils.startingCliCommand('npm run build:local', libDirectory)
+    const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
     
     if (buildLib) {
-      const readFileStream  = fs.createReadStream(path.join(libDirectory, 'dist/DC.js'))
-      const writeFileStream = fs.createWriteStream(path.join(__dirname, 'tests/dapp/DC.js'))
+      const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
+      const writeFileStream = fs.createWriteStream(path.join(process.cwd(), 'src/dapp/DC.js'))
       
       readFileStream.pipe(writeFileStream)
       
@@ -96,7 +92,7 @@ async function integration () {
        * with pm2
        */
       await Utils.startPM2Service({
-        cwd         : BankrollerDir,
+        cwd         : BANKROLLER_CORE,
         name        : 'bankroller',
         exec_mode   : 'fork',
         script      : './run_dev_env.sh',
@@ -120,8 +116,14 @@ async function integration () {
      * Run jest tests with integration config
      */
     const testStart =  await jest.runCLI(
-      { runInBand: true, config: path.resolve(__dirname, 'tests/jest', 'initConfig.js') },
-      [path.join(__dirname, './tests/integration')])
+      {
+        runInBand: true,
+        verbose: true,
+        config: path.resolve(__dirname, 'jest', 'initConfig.js')
+      },
+      
+      [path.join(process.cwd(), './src/__tests__/integration')]
+    )
 
     if (testStart) {
       await Utils.deletePM2Service('bankroller')
@@ -134,14 +136,6 @@ async function integration () {
   }
 }
 
-module.exports = cmd => {
-  /** Parse cli arguments */
-  const argv = process.argv.slice(2);
-
-  /**
-   * Start tests with arg
-   */
-  (cmd.integration) && integration(); 
-  (cmd.performance) && performance();
-  (cmd.unit || argv.length < 2) && unit();
-}
+module.exports.Performance = Performance
+module.exports.Integration = Integration
+module.exports.Unit = cmd => Unit(cmd)

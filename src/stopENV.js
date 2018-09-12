@@ -1,4 +1,6 @@
+const fs    = require('fs')
 const path  = require('path')
+const Utils = require('./Utils')
 const spawn = require('child_process').spawn
 
 module.exports = () => {
@@ -16,10 +18,16 @@ module.exports = () => {
      * Listen for exitCode
      * if exit code !== 0 then catch Error
      */
-    containersDown.on('exit', code => {
-      (code !== 0 || code === null)
-        ? reject(new Error(`Error: docker containers not down. Exit code: ${code}`))
-        : resolve(true)
+    containersDown.on('exit', async code => {
+      const pathToProjectJSON = path.join(__dirname, '../pathToProject.json')
+
+      if (code !== 0 || code === null) {
+        reject(new Error(`Error: docker containers not down. Exit code: ${code}`))
+      } else if (fs.existsSync(pathToProjectJSON)) {
+        await Utils.rmFolder(path.join(pathToProjectJSON, 'bankroller_core/protocol'))
+        await Utils.rmFolder(path.join(pathToProjectJSON, 'dclib/protocol'))
+        resolve(true)
+      }
     })
   })
 }
