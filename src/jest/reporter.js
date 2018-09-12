@@ -3,13 +3,12 @@ const logSymbols = require('log-symbols');
 
 class Reporter {
   constructor(_config, _options) {
-    this.ora      = ora('Testing...')
     this._config  = _config
     this._options = _options
     this.succeed  = true
   }
 
-  onRunStart() { this.ora.start() }
+  onRunStart() { }
   
   onRunComplete(test, results) {
     (this.succeed)

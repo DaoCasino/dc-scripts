@@ -13,7 +13,6 @@ const stopENV = require('./stopENV')
 function Unit() {
   // Load enviroment Variable
   dotenv.config({ path: path.join(__dirname, '../', '.testenv') });
-
   /*
    * Run jest tests with arguments
    * --runInBand - start test serially in one process
@@ -22,8 +21,9 @@ function Unit() {
    */
   jest.run([
     '--runInBand',
+    '--verbose',
     '--config',
-    path.join(__dirname, 'tests/jest', 'initConfig.js')
+    path.join(__dirname, 'jest', 'initConfig.js')
   ])
 }
 
@@ -116,8 +116,14 @@ async function Integration (params) {
      * Run jest tests with integration config
      */
     const testStart =  await jest.runCLI(
-      { runInBand: true, config: path.resolve(__dirname, 'jest', 'initConfig.js') },
-      [path.join(process.cwd(), './src/__tests__/integration')])
+      {
+        runInBand: true,
+        verbose: true,
+        config: path.resolve(__dirname, 'jest', 'initConfig.js')
+      },
+      
+      [path.join(process.cwd(), './src/__tests__/integration')]
+    )
 
     if (testStart) {
       await Utils.deletePM2Service('bankroller')
