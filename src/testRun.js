@@ -27,8 +27,40 @@ function Unit() {
   ])
 }
 
-function Performance () {
-  console.log('performance')
+async function Stress (params) {
+  const DC_LIB          = params.paths.dclib      || process.cwd()
+  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
+
+  if (!fs.existsSync(DC_LIB) || !fs.existsSync(BANKROLLER_CORE)) {
+    console.error('DCLib or Bankroller is not define')
+    process.exit(1)
+  }
+
+  try {
+    const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
+    
+    if (buildLib) {
+      const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
+      const writeFileStream = fs.createWriteStream(path.join(process.cwd(), 'src/dapp/DC.js'))
+      
+      readFileStream.pipe(writeFileStream)
+      
+      /**
+       * Start bankroller-core service
+       * with pm2
+       */
+      await Utils.startPM2Service({
+        cwd         : BANKROLLER_CORE,
+        name        : 'bankroller',
+        exec_mode   : 'fork',
+        script      : './run_ropsten_env.sh',
+        interpreter : 'sh'
+      })
+     }
+  } catch (err) {
+    console.error(err)
+    process.exit(301)
+  }
 }
 
 /**
@@ -136,6 +168,6 @@ async function Integration (params) {
   }
 }
 
-module.exports.Performance = Performance
+module.exports.Stress      = Stress
 module.exports.Integration = Integration
 module.exports.Unit = cmd => Unit(cmd)
