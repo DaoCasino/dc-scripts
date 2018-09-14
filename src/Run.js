@@ -26,7 +26,8 @@ module.exports = cmd => {
         await Utils.copyContracts(path.join(require(pathToProjectJSON), 'bankroller_core/protocol'))
         await Utils.copyContracts(path.join(require(pathToProjectJSON), 'dclib/protocol'))
       } else {
-        await Utils.copyContracts(path.join(process.cwd(), 'protocol'))
+        await Utils.copyContracts(path.join(process.cwd(), '..', 'dclib/protocol'))
+        await Utils.copyContracts(path.join(process.cwd(), '..', 'bankroller_core/protocol'))
       }
     })
     .catch(err => {
