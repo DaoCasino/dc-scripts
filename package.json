@@ -25,8 +25,6 @@
   "author": "Ilya Shu <ilya.dev@dao.casino>",
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.1",
-    "async-on-exit": "^0.1.0",
     "blessed": "^0.1.81",
     "chalk": "^2.4.1",
     "commander": "^2.17.1",
@@ -36,8 +34,6 @@
     "ncp": "^2.0.0",
     "ora": "^3.0.0",
     "pm2": "^3.0.4",
-    "puppeteer": "^1.7.0",
-    "simple-git": "^1.96.0",
     "truffle": "^4.1.14",
     "web3": "^1.0.0-beta.35"
   }

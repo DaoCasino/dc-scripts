@@ -4,10 +4,13 @@ const Utils   = require('./Utils')
 const upENV   = require('./upEnv')
 
 module.exports = cmd => {
+  const SERVECE_NAME = (cmd.protocol) ? 'dc_protocol' : ' '
+  const RECREATE = (fs.existsSync(path.join(__dirname, '../_env/protocol')))
+    ? '--no-recreate' : '--force-recreate'
   /**
    * Start env for developing with cmd options
    */
-  upENV({ service: (cmd.protocol) ? 'dc_protocol' : '', recreate: '--no-recreate' })
+  upENV({ service: SERVECE_NAME, recreate: RECREATE })
     .then(async () => {
       /**
        * Path to projects directory

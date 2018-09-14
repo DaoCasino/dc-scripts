@@ -10,7 +10,7 @@ module.exports = function (deployer, network) {
       addr.Referrer , // RefInterface _ref           ,
       addr.GameWL   , // GameWLinterface _gameWL     ,
       addr.PlayerWL , // PlayerWLinterface _playerWL ,
-      addr.RSA       // RSA _rsa
+      addr.RSA        // RSA _rsa
   ).then(function () {
     console.log('myDAppGame address:', myDAppGame.address);
     if (network === 'development' || network === 'develop' || network === 'coverage') {

@@ -1,6 +1,7 @@
 const fs      = require('fs')
 const path    = require('path')
 const chalk   = require('chalk')
+const Utils   = require('./Utils')
 const spawn   = require('child_process').spawn
 const _config = require('./config/config')
 
@@ -40,6 +41,8 @@ function installProject (pathToRepo, useYarn = false) {
   return new Promise((resolve, reject) => {
     /**
      * If useYarn = true then use yarn package manager
+     * TOODOO: yarn install is not working
+     * npm install only
      */
     const command = (useYarn) ? 'yarn install' : 'npm install'
   
@@ -61,7 +64,6 @@ module.exports = async (cmd, pathToDir) => {
    * Path for file in which path to project directory
    */
   const pathToFileJSON = path.join(__dirname, '../pathToProject.json')
-  console.log(pathToFileJSON)
   /**
    * check empty protocol directory
    * for path in project path file and exit process 
@@ -103,6 +105,13 @@ module.exports = async (cmd, pathToDir) => {
       for correct work protocol recommended install ${_config.recomendNodeVersion} version
     `))
   }
+
+  /**
+   * Clear cache with yarn install
+   * TOODOO: yarn install not working
+   * this code is ivalid
+   */
+  // (cmd.yarn) && await Utils.startingCliCommand('yarn cache clean')
 
   /**
    * Creating and install repositories

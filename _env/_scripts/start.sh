@@ -18,5 +18,6 @@ else
 	$WITH_SUDO docker-compose up -d $RECREATE $SERVICE_NAME
 fi
 
+sleep 3
 cd `dirname "$0"`/../../
-$WITH_SUDO npm run migrate
+$WITH_SUDO npm run migrate || sleep 3

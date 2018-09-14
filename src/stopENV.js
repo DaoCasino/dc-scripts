@@ -23,9 +23,12 @@ module.exports = () => {
 
       if (code !== 0 || code === null) {
         reject(new Error(`Error: docker containers not down. Exit code: ${code}`))
-      } else if (fs.existsSync(pathToProjectJSON)) {
-        await Utils.rmFolder(path.join(pathToProjectJSON, 'bankroller_core/protocol'))
-        await Utils.rmFolder(path.join(pathToProjectJSON, 'dclib/protocol'))
+      } else if (
+        fs.existsSync(pathToProjectJSON) &&
+        fs.existsSync(require(pathToProjectJSON))
+      ) {
+        await Utils.rmFolder(path.join(require(pathToProjectJSON), 'bankroller_core/protocol'))
+        await Utils.rmFolder(path.join(require(pathToProjectJSON), 'dclib/protocol'))
         resolve(true)
       }
     })
