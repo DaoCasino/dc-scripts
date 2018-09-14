@@ -34,7 +34,7 @@ module.exports = cmd => {
        * inner contraacts directory
        */
       (fs.existsSync(path.join(process.cwd(), '..', 'dclib'))) &&
-        await Utils.copyContracts(path.join(process.cwd(), '..', 'dclib/protocol'))
+        await Utils.copyContracts(path.join(process.cwd(), '..', 'dclib/protocol'));
 
       /**
        * If pfthToProjectJSON not exists then
