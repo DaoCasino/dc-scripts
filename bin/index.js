@@ -1,6 +1,6 @@
 #!/usr/bin/env node
+const Run     = require('../src/Run')
 const test    = require('../src/testRun')
-const start   = require('../src/start')
 const setup   = require('../src/setup')
 const remove  = require('../src/remove')
 const stopENV = require('../src/stopENV')
@@ -13,7 +13,11 @@ program
 
 program
   .command('setup [dir]')
-  .option('-y, --yarn', 'Use yarn package manager for install dependencies')
+  /**
+   * TOODOO: Bug in yarn install dc-messaging
+   * instal this old not working versions
+   */
+  // .option('-y, --yarn', 'Use yarn package manager for install dependencies')
   .action((dir, cmd) => setup(cmd, dir))
 
 program
@@ -22,10 +26,10 @@ program
   .action(cmd => remove(cmd))
 
 program
-  .command('start')
+  .command('run')
   .description('Start env for development with options')
   .option('-p, --protocol', 'Start without bankroller-container')
-  .action(cmd => start(cmd))
+  .action(cmd => Run(cmd))
 
 program
   .command('stop')
@@ -34,8 +38,7 @@ program
 
 program
   .command('test')
-  .description('Start testing with options')
-  .usage('[options]')
+  .description('Start testing')
   .action(cmd => test.Unit(cmd))
 
 program.parse(process.argv)

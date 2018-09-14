@@ -27,21 +27,43 @@ function Unit() {
   ])
 }
 
+/**
+ * Start for stress tests 
+ */
 async function Stress (params) {
+  /**
+   * Init path for folders
+   */
   const DC_LIB          = params.paths.dclib      || process.cwd()
+  const TARGET_DAPP     = params.targetDir        || process.cwd()
   const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
 
-  if (!fs.existsSync(DC_LIB) || !fs.existsSync(BANKROLLER_CORE)) {
-    console.error('DCLib or Bankroller is not define')
+  /**
+   * Check exist for paths
+   */
+  if (
+    !fs.existsSync(DC_LIB) ||
+    !fs.existsSync(BANKROLLER_CORE) ||
+    !fs.existsSync(TARGET_DIR)
+  ) {
+    console.error(`
+      last of path is incorrect
+      Lib: ${DC_LIB}
+      Bankroller: ${BANKROLLER_CORE}
+      Target dapp: ${TARGET_DAPP}
+    `)
     process.exit(1)
   }
 
   try {
+    /**
+     * Building lib and copy in TARGET_DAPP folder
+     */
     const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
     
     if (buildLib) {
       const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
-      const writeFileStream = fs.createWriteStream(path.join(process.cwd(), 'src/dapp/DC.js'))
+      const writeFileStream = fs.createWriteStream(TARGET_DAPP)
       
       readFileStream.pipe(writeFileStream)
       
