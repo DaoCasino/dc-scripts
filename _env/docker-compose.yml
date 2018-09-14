@@ -28,6 +28,8 @@ services:
       - dc_protocol
     image:
       daocasino/bankroller
+    environment:
+      - privateKey=0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5
     volumes:
       - ./protocol:/protocol
       - ./bankroller/dapps/:/bankroller/data_sdk/dapps/
