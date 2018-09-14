@@ -25,6 +25,8 @@ module.exports = cmd => {
       if (fs.existsSync(pathToProjectJSON)) {
         await Utils.copyContracts(path.join(require(pathToProjectJSON), 'bankroller_core/protocol'))
         await Utils.copyContracts(path.join(require(pathToProjectJSON), 'dclib/protocol'))
+      } else {
+        await Utils.copyContracts(path.join(process.cwd(), 'protocol'))
       }
     })
     .catch(err => {
