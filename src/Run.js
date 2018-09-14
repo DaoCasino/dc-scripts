@@ -23,12 +23,26 @@ module.exports = cmd => {
        * dclib and bankroller_core
        */
       if (fs.existsSync(pathToProjectJSON)) {
-        await Utils.copyContracts(path.join(require(pathToProjectJSON), 'bankroller_core/protocol'))
-        await Utils.copyContracts(path.join(require(pathToProjectJSON), 'dclib/protocol'))
-      } else {
-        await Utils.copyContracts(path.join(process.cwd(), '..', 'dclib/protocol'))
-        await Utils.copyContracts(path.join(process.cwd(), '..', 'bankroller_core/protocol'))
+        await Utils.copyContracts(path.join(require(pathToProjectJSON), 'bankroller_core/protocol'));
+        await Utils.copyContracts(path.join(require(pathToProjectJSON), 'dclib/protocol'));
+        return
       }
+
+      /**
+       * If pathToProjectJSON not exists then
+       * check dclib directory in env PWD and copy
+       * inner contraacts directory
+       */
+      (fs.existsSync(path.join(process.cwd(), '..', 'dclib'))) &&
+        await Utils.copyContracts(path.join(process.cwd(), '..', 'dclib/protocol'))
+
+      /**
+       * If pfthToProjectJSON not exists then
+       * check bankroller_core directory in env PWD and copy
+       * inner contracts directory
+       */
+      (fs.existsSync(path.join(process.cwd(), '..', 'bankroller_core'))) &&
+        await Utils.copyContracts(path.join(process.cwd(), '..', 'bankroller_core/protocol'))
     })
     .catch(err => {
       console.error('Error with code: ', err)
