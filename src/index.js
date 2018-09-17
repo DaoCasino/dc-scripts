@@ -7,6 +7,6 @@ module.exports = Object.freeze({
   upENV              : upEnv,
   Utils              : Utils,
   stopENV            : stopENV,
-  runIntegrationTest : test.Integration,
-  runPerformanceTest : test.Performance,
+  runStressTest      : test.Stress,
+  runIntegrationTest : test.Integration
 })
