@@ -46,7 +46,7 @@ function Stress (params) {
     if (
       !fs.existsSync(DC_LIB) ||
       !fs.existsSync(BANKROLLER_CORE) ||
-      !fs.existsSync(TARGET_DIR)
+      !fs.existsSync(TARGET_DAPP)
     ) {
       console.error(`
         last of path is incorrect
