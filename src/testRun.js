@@ -77,7 +77,7 @@ function Stress (params) {
       
       if (buildLib) {
         const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
-        const writeFileStream = fs.createWriteStream(TARGET_DAPP)
+        const writeFileStream = fs.createWriteStream(path.join(TARGET_DAPP, 'DC.js'))
         
         readFileStream.pipe(writeFileStream)
         
