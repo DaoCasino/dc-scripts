@@ -37,7 +37,7 @@ function Stress (params) {
      */
     const DC_LIB          = params.paths.dclib      || process.cwd()
     const DC_NETWORK      = params.network          || 'local'
-    const TARGET_DAPP     = params.targetDir        || process.cwd()
+    const TARGET_DAPP     = params.targetDir        || path.join(process.cwd(), 'src/dapp')
     const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
   
     /**
