@@ -58,6 +58,18 @@ function Stress (params) {
     }
   
     try {
+      /* 
+      * Start docker containers with arguments
+      * and migrate smart contracts with truffle
+      * then copy folder with smart contracts in DCLib
+      * or bankroller
+      */
+    await upENV({ sevice : 'dc_protocol' })
+      /**
+       * Copy contracts in protocol projects
+       */
+    await Utils.copyContracts(path.join(DC_LIB, './protocol'))
+    await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
       /**
        * Building lib and copy in TARGET_DAPP folder
        */
