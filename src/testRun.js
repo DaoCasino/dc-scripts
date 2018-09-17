@@ -30,59 +30,66 @@ function Unit() {
 /**
  * Start for stress tests 
  */
-async function Stress (params) {
-  /**
-   * Init path for folders
-   */
-  const DC_LIB          = params.paths.dclib      || process.cwd()
-  const TARGET_DAPP     = params.targetDir        || process.cwd()
-  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
-
-  /**
-   * Check exist for paths
-   */
-  if (
-    !fs.existsSync(DC_LIB) ||
-    !fs.existsSync(BANKROLLER_CORE) ||
-    !fs.existsSync(TARGET_DIR)
-  ) {
-    console.error(`
-      last of path is incorrect
-      Lib: ${DC_LIB}
-      Bankroller: ${BANKROLLER_CORE}
-      Target dapp: ${TARGET_DAPP}
-    `)
-    process.exit(1)
-  }
-
-  try {
+function Stress (params) {
+  return new Promise(async (resolve, reject) => {
     /**
-     * Building lib and copy in TARGET_DAPP folder
+     * Init params
      */
-    const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
-    
-    if (buildLib) {
-      const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
-      const writeFileStream = fs.createWriteStream(TARGET_DAPP)
-      
-      readFileStream.pipe(writeFileStream)
-      
+    const DC_LIB          = params.paths.dclib      || process.cwd()
+    const DC_NETWORK      = params.network          || 'local'
+    const TARGET_DAPP     = params.targetDir        || process.cwd()
+    const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
+  
+    /**
+     * Check exist for paths
+     */
+    if (
+      !fs.existsSync(DC_LIB) ||
+      !fs.existsSync(BANKROLLER_CORE) ||
+      !fs.existsSync(TARGET_DIR)
+    ) {
+      console.error(`
+        last of path is incorrect
+        Lib: ${DC_LIB}
+        Bankroller: ${BANKROLLER_CORE}
+        Target dapp: ${TARGET_DAPP}
+      `)
+      process.exit(1)
+    }
+  
+    try {
       /**
-       * Start bankroller-core service
-       * with pm2
+       * Building lib and copy in TARGET_DAPP folder
        */
-      await Utils.startPM2Service({
-        cwd         : BANKROLLER_CORE,
-        name        : 'bankroller',
-        exec_mode   : 'fork',
-        script      : './run_ropsten_env.sh',
-        interpreter : 'sh'
-      })
-     }
-  } catch (err) {
-    console.error(err)
-    process.exit(301)
-  }
+      const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
+      
+      if (buildLib) {
+        const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
+        const writeFileStream = fs.createWriteStream(TARGET_DAPP)
+        
+        readFileStream.pipe(writeFileStream)
+        
+        /**
+         * Start bankroller-core service
+         * with pm2
+         */
+        await Utils.startPM2Service({
+          cwd: BANKROLLER_CORE,
+          name: 'bankroller',
+          exec_mode: 'fork',
+          interpreter: 'sh',
+          script: (DC_NETWORK === 'ropsten')
+            ? './run_ropsten_env.sh'
+            : './run_dev_env.sh'
+        })
+
+        resolve(true)
+       }
+    } catch (err) {
+      console.error(err)
+      reject(err)
+    }
+  })
 }
 
 /**
@@ -91,6 +98,7 @@ async function Stress (params) {
  */
 async function Integration (params) {
   const DC_LIB          = params.paths.dclib      || process.cwd()
+  const DC_NETWORK      = params.network          || 'local'
   const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
 
   if (!fs.existsSync(DC_LIB) || !fs.existsSync(BANKROLLER_CORE)) {
@@ -149,8 +157,10 @@ async function Integration (params) {
         cwd         : BANKROLLER_CORE,
         name        : 'bankroller',
         exec_mode   : 'fork',
-        script      : './run_dev_env.sh',
-        interpreter : 'sh'
+        interpreter : 'sh',
+        script: (DC_NETWORK === 'ropsten')
+          ? './run_ropsten_env.sh'
+          : './run_dev_env.sh'
       })
      }
   } catch (err) {
