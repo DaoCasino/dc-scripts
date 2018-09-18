@@ -93,13 +93,24 @@ function upTestENV(params) {
  * and delete contracts paths 
  */
 async function exit (params) {
+  /** Init params */
   const CODE            = params.code             || 0
   const DC_LIB          = params.paths.dclib      || process.cwd()
   const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
 
+  /**
+   * Stop PM2 bankroller service
+   * and stop docker env
+   */
   await Utils.deletePM2Service('bankroller')
   const stopDockerContainer = await stopENV()
 
+  /**
+   * If bankroller pm2 service and docker
+   * env is stoped then check exist path to
+   * contracts and remove in dclib and bankroller
+   * projects after process exit with code in params
+   */
   if (stopDockerContainer) {
     const libContracts      = path.join(DC_LIB, './protocol')
     const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
