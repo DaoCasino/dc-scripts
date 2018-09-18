@@ -1,6 +1,6 @@
 module.exports = {
   recomendNodeVersion: '10.8.0',
-  
+
   secrets: {
     local: {
       _: 'See _env/README.md',

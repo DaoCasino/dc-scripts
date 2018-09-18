@@ -73,6 +73,8 @@ function exitListener (f) {
         console.warn(chalk.yellow('WARNING: process out'))
 
         f()
+        process.kill(0, 'SIGKILL')
+        process.exit()
       })
     })
 }

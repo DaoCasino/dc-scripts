@@ -6,38 +6,14 @@ const upENV   = require('./upEnv')
 const dotenv  = require('dotenv')
 const stopENV = require('./stopENV')
 
-/**
- * Start unit tests with
- * Folder tests
- */
-function Unit() {
-  // Load enviroment Variable
-  dotenv.config({ path: path.join(__dirname, '../', '.testenv') });
-  /*
-   * Run jest tests with arguments
-   * --runInBand - start test serially in one process
-   * --config - start test with config
-   * [path/to/file] - path to config.file
-   */
-  jest.run([
-    '--runInBand',
-    '--verbose',
-    '--config',
-    path.join(__dirname, 'jest', 'initConfig.js')
-  ])
-}
-
-/**
- * Start for stress tests 
- */
-function Stress (params) {
+function upTestENV(params) {
   return new Promise(async (resolve, reject) => {
     /**
      * Init params
      */
     const DC_LIB          = params.paths.dclib      || process.cwd()
     const DC_NETWORK      = params.network          || 'local'
-    const TARGET_DAPP     = params.targetDir        || path.join(process.cwd(), 'src/dapp')
+    const TARGET_DAPP     = params.paths.targetDir  || path.join(process.cwd(), 'src/dapp')
     const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
   
     /**
@@ -56,7 +32,7 @@ function Stress (params) {
       `)
       process.exit(1)
     }
-  
+    
     try {
       /* 
       * Start docker containers with arguments
@@ -64,12 +40,12 @@ function Stress (params) {
       * then copy folder with smart contracts in DCLib
       * or bankroller
       */
-    await upENV({ sevice : 'dc_protocol' })
+      await upENV({ sevice : 'dc_protocol' })
       /**
        * Copy contracts in protocol projects
        */
-    await Utils.copyContracts(path.join(DC_LIB, './protocol'))
-    await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
+      await Utils.copyContracts(path.join(DC_LIB, './protocol'))
+      await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
       /**
        * Building lib and copy in TARGET_DAPP folder
        */
@@ -95,99 +71,79 @@ function Stress (params) {
             : './run_dev_env.sh'
         })
 
-        resolve(true)
+        resolve({
+          code  : 0,
+          error : null,
+          paths : params.paths
+        })
        }
     } catch (err) {
-      console.error(err)
-      reject(err)
+      reject({
+        code  : 301,
+        error : err,
+        paths : params.paths
+      })
     }
   })
+}
+
+/**
+ * Function for exit
+ * she stop Env docker containers
+ * and delete contracts paths 
+ */
+async function exit (params) {
+  const CODE            = params.code             || 0
+  const DC_LIB          = params.paths.dclib      || process.cwd()
+  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
+
+  await Utils.deletePM2Service('bankroller')
+  const stopDockerContainer = await stopENV()
+
+  if (stopDockerContainer) {
+    const libContracts      = path.join(DC_LIB, './protocol')
+    const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
+
+    (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
+    (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
+    process.exit(CODE)
+  }
+}
+
+/**
+ * Start unit tests with
+ * Folder tests
+ */
+function Unit() {
+  // Load enviroment Variable
+  dotenv.config({ path: path.join(__dirname, '../', '.testenv') });
+  /*
+   * Run jest tests with arguments
+   * --runInBand - start test serially in one process
+   * --config - start test with config
+   * [path/to/file] - path to config.file
+   */
+  jest.run([
+    '--runInBand',
+    '--verbose',
+    '--config',
+    path.join(__dirname, 'jest', 'initConfig.js')
+  ])
 }
 
 /**
  * Start enviroment for integration
  * tests and run Jest tests
  */
-async function Integration (params) {
-  const DC_LIB          = params.paths.dclib      || process.cwd()
-  const DC_NETWORK      = params.network          || 'local'
-  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
-
-  if (!fs.existsSync(DC_LIB) || !fs.existsSync(BANKROLLER_CORE)) {
-    console.error('DCLib or Bankroller is not define')
-    process.exit(1)
-  }
-  
-  /**
-   * Function for exit
-   * she stop Env docker containers
-   * and delete contracts paths 
-   */
-  async function exit (code = 0) {
-    const stopDockerContainer = await stopENV()
-
-    if (stopDockerContainer) {
-      const libContracts      = path.join(DC_LIB, './protocol')
-      const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
-
-      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
-      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
-      process.exit(code)
-    }
-  }
-
+async function Integration (params) {  
   try {
-    /* 
-    * Start docker containers with arguments
-    * and migrate smart contracts with truffle
-    * then copy folder with smart contracts in DCLib
-    * or bankroller
-    */
-    await upENV({ sevice : 'dc_protocol' })
     /**
-     * Copy contracts in protocol projects
+     * Up test env, handle
+     * error reject and start exit function
+     * with reject object else start test with resolve object
      */
-    await Utils.copyContracts(path.join(DC_LIB, './protocol'))
-    await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
-    /**
-     * Start Build DCLib
-     * and get build version in test dapp
-     */
-    const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
+    const upStatus = await upTestENV(params)
     
-    if (buildLib) {
-      const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
-      const writeFileStream = fs.createWriteStream(path.join(process.cwd(), 'src/dapp/DC.js'))
-      
-      readFileStream.pipe(writeFileStream)
-      
-      /**
-       * Start bankroller-core service
-       * with pm2
-       */
-      await Utils.startPM2Service({
-        cwd         : BANKROLLER_CORE,
-        name        : 'bankroller',
-        exec_mode   : 'fork',
-        interpreter : 'sh',
-        script: (DC_NETWORK === 'ropsten')
-          ? './run_ropsten_env.sh'
-          : './run_dev_env.sh'
-      })
-     }
-  } catch (err) {
-    /**
-     * if error then stop bankroller in pm2
-     * stop docker container protocol and
-     * exit process
-     */
-    console.error(err)
-    
-    await Utils.deletePM2Service('bankroller')
-    exit(301)
-  }
-  
-  try {
     /**
      * Run jest tests with integration config
      */
@@ -199,19 +155,20 @@ async function Integration (params) {
       },
       
       [path.join(process.cwd(), './src/__tests__/integration')]
-    )
+    );
 
-    if (testStart) {
-      await Utils.deletePM2Service('bankroller')
-      exit()
-    }
+    (testStart) && exit(upStatus)
   } catch (err) {
+    /**
+     * Output log and stat exit function
+     * with reject object or resolve object
+     */
     console.error(err)
-    await Utils.deletePM2Service('bankroller')
-    exit(301)
+    exit(upStatus)
   }
 }
 
-module.exports.Stress      = Stress
+module.exports.exit        = exit
+module.exports.upTestENV   = upTestENV
 module.exports.Integration = Integration
 module.exports.Unit = cmd => Unit(cmd)
