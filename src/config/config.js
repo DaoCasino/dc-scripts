@@ -29,6 +29,10 @@ module.exports = {
     integration_test: {
       link: 'git@github.com:DaoCasino/integration_tests.git',
       branch: ''
+    },
+    stress_test: {
+      link: 'git@github.com:DaoCasino/stress_test.git',
+      branch: ''
     }
   }
 }
