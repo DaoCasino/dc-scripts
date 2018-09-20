@@ -49,7 +49,7 @@ function upTestENV(params) {
       /**
        * Building lib and copy in TARGET_DAPP folder
        */
-      const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
+      const buildLib = await Utils.startingCliCommand(`npm run build:${DC_NETWORK}`, DC_LIB)
       
       if (buildLib) {
         const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
