@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-const Run     = require('../src/Run')
-const test    = require('../src/testRun')
-const setup   = require('../src/setup')
-const remove  = require('../src/remove')
-const stopENV = require('../src/stopENV')
-const program = require('commander')
+const Run       = require('../src/Run')
+const test      = require('../src/testRun')
+const setup     = require('../src/setup')
+const stopENV   = require('../src/stopENV')
+const program   = require('commander')
+const Uninstall = require('../src/Uninstall')
 
 program
   .version(require('../package.json').version)
@@ -23,7 +23,7 @@ program
 program
   .command('uninstall')
   .description('Uninstall DC Development ENV')
-  .action(cmd => remove(cmd))
+  .action(cmd => Uninstall(cmd))
 
 program
   .command('run')
