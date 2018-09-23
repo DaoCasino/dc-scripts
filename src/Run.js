@@ -3,14 +3,15 @@ const path  = require('path')
 const Utils = require('./utils')
 const upENV = require('./upEnv')
 
-module.exports = async cmd => {
-  const NETWORK       = (cmd.ropsten)  ? 'ropsten'          : 'local'
-  const RECREATE      = (cmd.force)    ? '--force-recreate' :  '--no-recreate'
-  const SERVECE_NAME  = (cmd.protocol) ? 'dc_protocol'      : ' '
-  const PATH_CONTRACT = path.join(__dirname, '../_env/protocol/dapp.contract.json')
-
+module.exports = async params => {
+  /** Init params */
+  const NETWORK            = params.network || (params.ropsten)  ? 'ropsten'     : 'local'
+  const SERVECE_NAME       = params.service || (params.protocol) ? 'dc_protocol' : ' '
+  const PATH_CONTRACT      = path.join(__dirname, '../_env/protocol', 'dapp.contract.json')
+  const PATH_PROTOCOL_ADDR = path.join(__dirname, '../_env/protocol', 'addresses.json')
+  
   /**
-   * Start env for developing with cmd options
+   * Start env for developing with params options
    */
   try {
     /**
@@ -19,24 +20,23 @@ module.exports = async cmd => {
      */
     await Utils.checkDockerContainer('dc_protocol')
       .then(async status => {
+        /** Check network if ropsten then return */
+        if (NETWORK === 'ropsten') return
         /**
          * If status true and network not equal ropsten
-         * or cmd options --force exists then
+         * or params options --force exists then
          * up docker containers
          */
-        ((!status && NETWORK !== 'ropsten') || cmd.force) &&
-          await upENV({ service: SERVECE_NAME, recreate: RECREATE }) 
+        (!status || !fs.existsSync(PATH_PROTOCOL_ADDR) || params.force) &&
+          await upENV({ service: SERVECE_NAME }) 
       })
-    
-    // /** init path and contract network */
-    // const contractNetwork = require(PATH_CONTRACT).network
 
     /**
      * if contract file not exists or
      * network not equal contract network or
      * --force option exist start deploy contract with network
      */
-    if (!fs.existsSync(PATH_CONTRACT) || NETWORK !== require(PATH_CONTRACT).network || cmd.force) {
+    if (!fs.existsSync(PATH_CONTRACT) || NETWORK !== require(PATH_CONTRACT).network || params.force) {
       await Utils.startingCliCommand(
         `${Utils.sudo()} npm run migrate:${NETWORK}`,
         path.join(__dirname, '../')
@@ -54,24 +54,32 @@ module.exports = async cmd => {
     if (fs.existsSync(pathToProjectJSON)) {
       await Utils.copyContracts(path.join(require(pathToProjectJSON), 'bankroller_core/protocol'));
       await Utils.copyContracts(path.join(require(pathToProjectJSON), 'dclib/protocol'));
-      return
+      console.log('Contracts copy finished')
+      return true
     }
 
+    /** Init directory path with params of cwd env path */
+    const DCLIB_DIR      = params.path.dclib      || path.join(process.cwd(), '..', 'dclib')
+    const BANKROLLER_DIR = params.path.bankroller || path.join(process.cwd(), '..', 'bankroller_core')
     /**
       * If pathToProjectJSON not exists then
       * check dclib directory in env PWD and copy
       * inner contraacts directory
       */
-    (fs.existsSync(path.join(process.cwd(), '..', 'dclib'))) &&
-      await Utils.copyContracts(path.join(process.cwd(), '..', 'dclib/protocol'));
+    (fs.existsSync(DCLIB_DIR))
+      ? await Utils.copyContracts(path.join(DCLIB_DIR, 'protocol'))
+      : console.info('DClib directory not exist with path', DCLIB_DIR);
 
     /**
       * If pfthToProjectJSON not exists then
       * check bankroller_core directory in env PWD and copy
       * inner contracts directory
       */
-    (fs.existsSync(path.join(process.cwd(), '..', 'bankroller_core'))) &&
-      await Utils.copyContracts(path.join(process.cwd(), '..', 'bankroller_core/protocol'))
+    (fs.existsSync(BANKROLLER_DIR))
+      ? await Utils.copyContracts(path.join(BANKROLLER_DIR, 'protocol'))
+      : console.info('Bankroller directory not exist with path', BANKROLLER_DIR)
+    
+    return true
   } catch (err) {
     console.error('Error with code: ', err)
     process.exit(1)

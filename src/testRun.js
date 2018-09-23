@@ -1,8 +1,9 @@
 const fs      = require('fs')
+const run     = require('./run')
 const jest    = require('jest')
 const path    = require('path')
 const Utils   = require('./utils')
-const upENV   = require('./upEnv')
+// const upENV   = require('./upEnv')
 const dotenv  = require('dotenv')
 const stopENV = require('./stopENV')
 
@@ -36,27 +37,34 @@ function upTestENV(params) {
       * then copy folder with smart contracts in DCLib
       * or bankroller
       */
-      (NETWORK !== 'ropsten') && await upENV({ sevice : 'dc_protocol' });
+      await run({
+        service: 'dc_protocol',
+        network: NETWORK,
+        paths: {
+          dclib: DC_LIB,
+          bankroller: BANKROLLER_CORE
+        }
+      });
 
-      /** init path and contract network */
-      const pathToContract  = path.join(__dirname, '../_env/protocol/dapp.contract.json')
-      const contractNetwork = require(pathToContract).network
+      // /** init path and contract network */
+      // const pathToContract  = path.join(__dirname, '../_env/protocol/dapp.contract.json')
+      // const contractNetwork = require(pathToContract).network
 
-      /**
-       * if contract file not exists or
-       * network not equal contract network or
-       * --force option exist start deploy contract with network
-       */
-      if (!fs.existsSync(pathToContract) || NETWORK !== contractNetwork) {
-        await Utils.startingCliCommand(
-          `${Utils.sudo()} npm run migrate:${NETWORK}`,
-          path.join(__dirname, '../')
-        )
-      }
+      // /**
+      //  * if contract file not exists or
+      //  * network not equal contract network or
+      //  * --force option exist start deploy contract with network
+      //  */
+      // if (!fs.existsSync(pathToContract) || NETWORK !== contractNetwork) {
+      //   await Utils.startingCliCommand(
+      //     `${Utils.sudo()} npm run migrate:${NETWORK}`,
+      //     path.join(__dirname, '../')
+      //   )
+      // }
 
-      /** Copy contracts in protocol projects */
-      await Utils.copyContracts(path.join(DC_LIB, './protocol'))
-      await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
+      // /** Copy contracts in protocol projects */
+      // await Utils.copyContracts(path.join(DC_LIB, './protocol'))
+      // await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
       
       /** Start bankroller-core service with pm2 */
       await Utils.startPM2Service({
