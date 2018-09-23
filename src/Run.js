@@ -4,9 +4,10 @@ const Utils = require('./utils')
 const upENV = require('./upEnv')
 
 module.exports = async cmd => {
-  const NETWORK      = (cmd.ropsten)  ? 'ropsten'          : 'local'
-  const RECREATE     = (cmd.force)    ? '--force-recreate' :  '--no-recreate'
-  const SERVECE_NAME = (cmd.protocol) ? 'dc_protocol'      : ' '
+  const NETWORK       = (cmd.ropsten)  ? 'ropsten'          : 'local'
+  const RECREATE      = (cmd.force)    ? '--force-recreate' :  '--no-recreate'
+  const SERVECE_NAME  = (cmd.protocol) ? 'dc_protocol'      : ' '
+  const PATH_CONTRACT = path.join(__dirname, '../_env/protocol/dapp.contract.json')
 
   /**
    * Start env for developing with cmd options
@@ -27,16 +28,15 @@ module.exports = async cmd => {
           await upENV({ service: SERVECE_NAME, recreate: RECREATE }) 
       })
     
-    /** init path and contract network */
-    const pathToContract  = path.join(__dirname, '../_env/protocol/dapp.contract.json')
-    const contractNetwork = require(pathToContract).network
+    // /** init path and contract network */
+    // const contractNetwork = require(PATH_CONTRACT).network
 
     /**
      * if contract file not exists or
      * network not equal contract network or
      * --force option exist start deploy contract with network
      */
-    if (!fs.existsSync(pathToContract) || NETWORK !== contractNetwork || cmd.force) {
+    if (!fs.existsSync(PATH_CONTRACT) || NETWORK !== require(PATH_CONTRACT).network || cmd.force) {
       await Utils.startingCliCommand(
         `${Utils.sudo()} npm run migrate:${NETWORK}`,
         path.join(__dirname, '../')
