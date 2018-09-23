@@ -1,13 +1,24 @@
-const path = require('path')
+const path             = require('path')
+const _config          = require('./src/config/config')
+const HDWalletProvider = require('truffle-hdwallet-provider')
 
 module.exports = {
   networks: {
-    development: {
+    local: {
       host: '127.0.0.1',
       port: 1406,
-      gas: 6700000, // Block Gas Limit same as latest on Mainnet https://ethstats.net/
-      gasPrice: 32, // same as latest on Mainnet https://ethstats.net/
+      gas: 6700000,
+      gasPrice: 32,
       network_id: '*'
+    },
+
+    ropsten: {
+      provider: new HDWalletProvider(process.env.MNEMONIC || _config.secrets.ropsten.mnemonic, 'https://ropsten.infura.io'),
+      gas: 5500000,
+      gasPrice: 10000000000,
+      network_id: 3,
+      timeoutBlocks: 200,
+      skipDryRun: true 
     }
   },
 

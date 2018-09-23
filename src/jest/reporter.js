@@ -1,6 +1,4 @@
-const ora        = require('ora')
 const logSymbols = require('log-symbols');
-
 class Reporter {
   constructor(_config, _options) {
     this._config  = _config

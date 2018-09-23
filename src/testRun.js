@@ -1,24 +1,20 @@
 const fs      = require('fs')
 const jest    = require('jest')
 const path    = require('path')
-const Utils   = require('./Utils')
+const Utils   = require('./utils')
 const upENV   = require('./upEnv')
 const dotenv  = require('dotenv')
 const stopENV = require('./stopENV')
 
 function upTestENV(params) {
   return new Promise(async (resolve, reject) => {
-    /**
-     * Init params
-     */
+    /** Init params */
     const DC_LIB          = params.paths.dclib      || process.cwd()
-    const DC_NETWORK      = params.network          || 'local'
+    const NETWORK         = params.network          || 'local'
     const TARGET_DAPP     = params.paths.targetDir  || path.join(process.cwd(), 'src/dapp')
     const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
   
-    /**
-     * Check exist for paths
-     */
+    /** Check exist for paths */
     if (
       !fs.existsSync(DC_LIB) ||
       !fs.existsSync(BANKROLLER_CORE) ||
@@ -40,36 +36,48 @@ function upTestENV(params) {
       * then copy folder with smart contracts in DCLib
       * or bankroller
       */
-      await upENV({ sevice : 'dc_protocol' })
+      (NETWORK !== 'ropsten') && await upENV({ sevice : 'dc_protocol' });
+
+      /** init path and contract network */
+      const pathToContract  = path.join(__dirname, '../_env/protocol/dapp.contract.json')
+      const contractNetwork = require(pathToContract).network
+
       /**
-       * Copy contracts in protocol projects
+       * if contract file not exists or
+       * network not equal contract network or
+       * --force option exist start deploy contract with network
        */
+      if (!fs.existsSync(pathToContract) || NETWORK !== contractNetwork) {
+        await Utils.startingCliCommand(
+          `${Utils.sudo()} npm run migrate:${NETWORK}`,
+          path.join(__dirname, '../')
+        )
+      }
+
+      /** Copy contracts in protocol projects */
       await Utils.copyContracts(path.join(DC_LIB, './protocol'))
       await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
-      /**
-       * Building lib and copy in TARGET_DAPP folder
-       */
-      const buildLib = await Utils.startingCliCommand(`npm run build:${DC_NETWORK}`, DC_LIB)
+      
+      /** Start bankroller-core service with pm2 */
+      await Utils.startPM2Service({
+        cwd: BANKROLLER_CORE,
+        name: 'bankroller',
+        exec_mode: 'fork',
+        interpreter: 'sh',
+        script: (NETWORK === 'ropsten')
+          ? './run_ropsten_env.sh'
+          : './run_dev_env.sh'
+      })
+
+      /** Building lib and copy in TARGET_DAPP folder */
+      const buildLib = await Utils.startingCliCommand(`npm run build:${NETWORK}`, DC_LIB)
       
       if (buildLib) {
+        /** Copye building DCLib in target dapp path */
         const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
         const writeFileStream = fs.createWriteStream(path.join(TARGET_DAPP, 'DC.js'))
         
         readFileStream.pipe(writeFileStream)
-        
-        /**
-         * Start bankroller-core service
-         * with pm2
-         */
-        await Utils.startPM2Service({
-          cwd: BANKROLLER_CORE,
-          name: 'bankroller',
-          exec_mode: 'fork',
-          interpreter: 'sh',
-          script: (DC_NETWORK === 'ropsten')
-            ? './run_ropsten_env.sh'
-            : './run_dev_env.sh'
-        })
 
         resolve({
           code  : 0,

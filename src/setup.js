@@ -1,7 +1,6 @@
 const fs      = require('fs')
 const path    = require('path')
 const chalk   = require('chalk')
-const Utils   = require('./Utils')
 const spawn   = require('child_process').spawn
 const _config = require('./config/config')
 

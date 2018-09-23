@@ -13,11 +13,11 @@ module.exports = options => {
     })
 
     containerUp
-      .on('error', err => reject(new Error(err)))
+      .on('error', err => reject(err))
       .on('exit', code => {
         (code !== 0 || code === null)
           ? reject(new Error(`Error: Containers not up. Exit code: ${code}`))
-          : resolve()
+          : resolve({code: code, options: options})
       })
   })
 }

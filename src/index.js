@@ -1,5 +1,5 @@
 const test    = require('./testRun')
-const Utils   = require('./Utils')
+const Utils   = require('./utils')
 const upEnv   = require('./upEnv') 
 const stopENV = require('./stopENV')
 

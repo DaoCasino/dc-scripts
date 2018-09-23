@@ -10,10 +10,11 @@ module.exports = {
       }
     },
     ropsten: {
-      _: 'Developer ETH address for deploy your game contaract',
-      address: '0xd0C478e53A6C349f819fb18628C3EF20aC9a7CF2',
-      privkey: '0x281cc410b625d3603f57b234dd35d5c1baf14adce9a1029527295ff417cef804'
-
+      _        : 'Developer ETH address for deploy your game contaract',
+      rpc_url  : 'https://ropsten.infura.io/JCnK5ifEPH9qcQkX0Ahl',
+      address  : '0xd0C478e53A6C349f819fb18628C3EF20aC9a7CF2',
+      privkey  : 'babaa8987e128f18372c133122e57848923059f8d18980eadf273ea0a8b811f7',
+      mnemonic : 'glass method front super auto hole know grace select prevent custom fancy'
     }
   },
 

@@ -1,7 +1,7 @@
 const fs    = require('fs')
 const path  = require('path')
 const chalk = require('chalk')
-const Utils = require('./Utils')
+const Utils = require('./utils')
 
 /**
  * init path to projects directory

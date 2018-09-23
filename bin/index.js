@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-const Run       = require('../src/Run')
+const run       = require('../src/run')
 const test      = require('../src/testRun')
 const setup     = require('../src/setup')
 const stopENV   = require('../src/stopENV')
 const program   = require('commander')
-const Uninstall = require('../src/Uninstall')
+const uninstall = require('../src/uninstall')
 
 program
   .version(require('../package.json').version)
@@ -23,13 +23,15 @@ program
 program
   .command('uninstall')
   .description('Uninstall DC Development ENV')
-  .action(cmd => Uninstall(cmd))
+  .action(cmd => uninstall(cmd))
 
 program
   .command('run')
   .description('Start env for development with options')
   .option('-p, --protocol', 'Start without bankroller-container')
-  .action(cmd => Run(cmd))
+  .option('-r, --ropsten', 'Run env in ropsten network')
+  .option('-f, --force', 'force recreate docker container')
+  .action(cmd => run(cmd))
 
 program
   .command('stop')
