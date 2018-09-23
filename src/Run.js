@@ -59,8 +59,8 @@ module.exports = async params => {
     }
 
     /** Init directory path with params of cwd env path */
-    const DCLIB_DIR      = params.path.dclib      || path.join(process.cwd(), '..', 'dclib')
-    const BANKROLLER_DIR = params.path.bankroller || path.join(process.cwd(), '..', 'bankroller_core')
+    const DCLIB_DIR      = params.dclibPath      || path.join(process.cwd(), '..', 'dclib')
+    const BANKROLLER_DIR = params.bankrollerPath || path.join(process.cwd(), '..', 'bankroller_core')
     /**
       * If pathToProjectJSON not exists then
       * check dclib directory in env PWD and copy

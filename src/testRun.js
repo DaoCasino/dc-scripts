@@ -38,12 +38,10 @@ function upTestENV(params) {
       * or bankroller
       */
       await run({
-        service: 'dc_protocol',
-        network: NETWORK,
-        paths: {
-          dclib: DC_LIB,
-          bankroller: BANKROLLER_CORE
-        }
+        service        : 'dc_protocol',
+        network        : NETWORK,
+        dclibPath      : DC_LIB,
+        bankrollerPath : BANKROLLER_CORE
       });
 
       // /** init path and contract network */
