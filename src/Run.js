@@ -60,7 +60,7 @@ module.exports = async params => {
 
     /** Init directory path with params of cwd env path */
     const DCLIB_DIR      = params.dclibPath      || path.join(process.cwd(), '..', 'dclib')
-    const BANKROLLER_DIR = params.bankrollerPath || path.join(process.cwd(), '..', 'bankroller_core')
+    const BANKROLLER_DIR = params.bankrollerPath || path.join(process.cwd(), '..', 'bankroller_core');
     /**
       * If pathToProjectJSON not exists then
       * check dclib directory in env PWD and copy
@@ -77,7 +77,7 @@ module.exports = async params => {
       */
     (fs.existsSync(BANKROLLER_DIR))
       ? await Utils.copyContracts(path.join(BANKROLLER_DIR, 'protocol'))
-      : console.info('Bankroller directory not exist with path', BANKROLLER_DIR)
+      : console.info('Bankroller directory not exist with path', BANKROLLER_DIR);
     
     return true
   } catch (err) {
