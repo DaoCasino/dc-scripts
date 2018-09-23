@@ -5,8 +5,8 @@ const upENV = require('./upEnv')
 
 module.exports = async params => {
   /** Init params */
-  const NETWORK            = params.network || (params.ropsten)  ? 'ropsten'     : 'local'
-  const SERVECE_NAME       = params.service || (params.protocol) ? 'dc_protocol' : ' '
+  const NETWORK            = params.network || ((params.ropsten)  ? 'ropsten'     : 'local')
+  const SERVECE_NAME       = params.service || ((params.protocol) ? 'dc_protocol' : ' ')
   const PATH_CONTRACT      = path.join(__dirname, '../_env/protocol', 'dapp.contract.json')
   const PATH_PROTOCOL_ADDR = path.join(__dirname, '../_env/protocol', 'addresses.json')
   

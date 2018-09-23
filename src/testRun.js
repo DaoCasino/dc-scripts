@@ -38,31 +38,12 @@ function upTestENV(params) {
       * or bankroller
       */
       await run({
+        force          : true,
         service        : 'dc_protocol',
         network        : NETWORK,
         dclibPath      : DC_LIB,
         bankrollerPath : BANKROLLER_CORE
       });
-
-      // /** init path and contract network */
-      // const pathToContract  = path.join(__dirname, '../_env/protocol/dapp.contract.json')
-      // const contractNetwork = require(pathToContract).network
-
-      // /**
-      //  * if contract file not exists or
-      //  * network not equal contract network or
-      //  * --force option exist start deploy contract with network
-      //  */
-      // if (!fs.existsSync(pathToContract) || NETWORK !== contractNetwork) {
-      //   await Utils.startingCliCommand(
-      //     `${Utils.sudo()} npm run migrate:${NETWORK}`,
-      //     path.join(__dirname, '../')
-      //   )
-      // }
-
-      // /** Copy contracts in protocol projects */
-      // await Utils.copyContracts(path.join(DC_LIB, './protocol'))
-      // await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
       
       /** Start bankroller-core service with pm2 */
       await Utils.startPM2Service({
@@ -112,26 +93,32 @@ async function exit (params) {
   const DC_LIB          = params.paths.dclib      || process.cwd()
   const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
 
-  /**
-   * Stop PM2 bankroller service
-   * and stop docker env
-   */
-  await Utils.deletePM2Service('bankroller')
-  const stopDockerContainer = await stopENV()
+  try {
 
-  /**
-   * If bankroller pm2 service and docker
-   * env is stoped then check exist path to
-   * contracts and remove in dclib and bankroller
-   * projects after process exit with code in params
-   */
-  if (stopDockerContainer) {
-    const libContracts      = path.join(DC_LIB, './protocol')
-    const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
-
-    (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
-    (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
-    process.exit(CODE)
+    /**
+     * Stop PM2 bankroller service
+     * and stop docker env
+     */
+    await Utils.deletePM2Service('bankroller')
+    const stopDockerContainer = await stopENV()
+  
+    /**
+     * If bankroller pm2 service and docker
+     * env is stoped then check exist path to
+     * contracts and remove in dclib and bankroller
+     * projects after process exit with code in params
+     */
+    if (stopDockerContainer) {
+      const libContracts      = path.join(DC_LIB, './protocol')
+      const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
+  
+      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
+      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
+      process.exit(CODE)
+    }
+  } catch (err) {
+    console.error(err.message)
+    process.exit()
   }
 }
 
