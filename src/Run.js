@@ -10,7 +10,6 @@ module.exports = async params => {
   const SERVECE_NAME       = params.service  || ((params.protocol) ? 'dc_protocol' : ' ')
   const PATH_CONTRACT      = path.join(__dirname, '../_env/protocol', 'dapp.contract.json')
   const PATH_PROTOCOL_ADDR = path.join(__dirname, '../_env/protocol', 'addresses.json')
-  
   /** Start env for developing with params options */
   try {
     /**
@@ -57,7 +56,7 @@ module.exports = async params => {
       )
     }
 
-    if (params.cwd) {
+    if (params.sdk) {
       await Utils.copyContracts(path.join(process.cwd(), 'dapp/config'))
       return true
     }
