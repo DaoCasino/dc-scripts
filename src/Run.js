@@ -19,26 +19,30 @@ module.exports = async params => {
      */
     await Utils.checkDockerContainer('dc_protocol')
       .then(async status => {
-        // /** Check network if ropsten then skip up env */
-        // if (NETWORK === 'ropsten') return
-        // if (status) {
-        //   try {
-        //     await Utils.startingCliCommand(
-        //       'docker cp env_dc_protocol_1:/protocol/ ./',
-        //       path.join(__dirname, '../_env')
-        //     )
-        //   } catch (err) {
-        //     console.error('Contract not exist')
-        //     return
-        //   }
-        // }
+        if (status) {
+          await Utils.startingCliCommand(
+            'docker cp env_dc_protocol_1:/protocol/ ./',
+            path.join(__dirname, '../_env')
+          )
+        }
         /**
          * If status true and network not equal ropsten
          * or params options --force exists then
          * up docker containers
          */
-        (!status || !fs.existsSync(PATH_PROTOCOL_ADDR) || params.force) &&
-          await upENV({ service: SERVECE_NAME, recreate: RECREATE });
+        switch (false) {
+          case status:
+            await upENV({ service: SERVECE_NAME, recreate: '--no-recreate' })
+            break
+          case fs.existsSync(PATH_PROTOCOL_ADDR):
+            await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
+            break
+          case !params.force:
+            await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
+            break
+          default:
+            break
+        }
       })
 
     /**

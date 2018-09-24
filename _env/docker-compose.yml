@@ -31,10 +31,11 @@ services:
     volumes:
       - ./protocol:/protocol
       - ./bankroller/dapps/:/bankroller/data_sdk/dapps/
+      - ${DAPP_PATH}:/bankroller/data_sdk/dapps/sdk_dapp/
     entrypoint: 
-      ["sh", "./run_sdk_env.sh"]
+      ["sh", "./run_${DC_NETWORK}_env.sh"]
     environment:
-      - privateKey=0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5
+      - privateKey=${PRIVATE_KEY}
     networks:
       - dc_network
 
