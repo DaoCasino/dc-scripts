@@ -58,7 +58,7 @@ module.exports = async params => {
     }
 
     if (params.cwd) {
-      await Utils.copyContracts(path.join(process.cwd(), 'protocol'))
+      await Utils.copyContracts(path.join(process.cwd(), 'dapp/config'))
       return true
     }
 
