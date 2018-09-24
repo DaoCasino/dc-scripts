@@ -30,7 +30,7 @@ program
   .command('run')
   .description('Start env for development with options')
   .option('-p, --protocol', 'Start without bankroller-container')
-  .option('-c, --cwd', 'output contracts with PWD env path')
+  .option('-s, --sdk', 'output contracts with SDK path')
   .option('-f, --force', 'force recreate docker container')
   .action(cmd => run(cmd))
 
