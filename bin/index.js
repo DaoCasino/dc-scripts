@@ -2,6 +2,7 @@
 const run       = require('../src/run')
 const test      = require('../src/testRun')
 const setup     = require('../src/setup')
+const deploy    = require('../src/deploy')
 const stopENV   = require('../src/stopENV')
 const program   = require('commander')
 const uninstall = require('../src/uninstall')
@@ -29,7 +30,7 @@ program
   .command('run')
   .description('Start env for development with options')
   .option('-p, --protocol', 'Start without bankroller-container')
-  .option('-r, --ropsten', 'Run env in ropsten network')
+  .option('-c, --cwd', 'output contracts with PWD env path')
   .option('-f, --force', 'force recreate docker container')
   .action(cmd => run(cmd))
 
@@ -42,5 +43,10 @@ program
   .command('test')
   .description('Start testing')
   .action(cmd => test.Unit(cmd))
+
+program
+  .command('deploy <network>')
+  .description('Deploy contract with network')
+  .action((cmd) => deploy(cmd))
 
 program.parse(process.argv)

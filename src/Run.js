@@ -5,14 +5,13 @@ const upENV = require('./upEnv')
 
 module.exports = async params => {
   /** Init params */
-  const NETWORK            = params.network || ((params.ropsten)  ? 'ropsten'     : 'local')
-  const SERVECE_NAME       = params.service || ((params.protocol) ? 'dc_protocol' : ' ')
+  const NETWORK            = params.network || 'local'
+  const RECREATE           = (params.force)   ? '--force-recreate' : '--no-recreate'
+  const SERVECE_NAME       = params.service  || ((params.protocol) ? 'dc_protocol' : ' ')
   const PATH_CONTRACT      = path.join(__dirname, '../_env/protocol', 'dapp.contract.json')
   const PATH_PROTOCOL_ADDR = path.join(__dirname, '../_env/protocol', 'addresses.json')
   
-  /**
-   * Start env for developing with params options
-   */
+  /** Start env for developing with params options */
   try {
     /**
      * Check exists and status "start"
@@ -20,15 +19,26 @@ module.exports = async params => {
      */
     await Utils.checkDockerContainer('dc_protocol')
       .then(async status => {
-        /** Check network if ropsten then return */
-        if (NETWORK === 'ropsten') return
+        // /** Check network if ropsten then skip up env */
+        // if (NETWORK === 'ropsten') return
+        // if (status) {
+        //   try {
+        //     await Utils.startingCliCommand(
+        //       'docker cp env_dc_protocol_1:/protocol/ ./',
+        //       path.join(__dirname, '../_env')
+        //     )
+        //   } catch (err) {
+        //     console.error('Contract not exist')
+        //     return
+        //   }
+        // }
         /**
          * If status true and network not equal ropsten
          * or params options --force exists then
          * up docker containers
          */
         (!status || !fs.existsSync(PATH_PROTOCOL_ADDR) || params.force) &&
-          await upENV({ service: SERVECE_NAME }) 
+          await upENV({ service: SERVECE_NAME, recreate: RECREATE });
       })
 
     /**
@@ -36,11 +46,16 @@ module.exports = async params => {
      * network not equal contract network or
      * --force option exist start deploy contract with network
      */
-    if (!fs.existsSync(PATH_CONTRACT) || NETWORK !== require(PATH_CONTRACT).network || params.force) {
+    if (!fs.existsSync(PATH_CONTRACT) || require(PATH_CONTRACT).network !== NETWORK || params.force) {
       await Utils.startingCliCommand(
         `${Utils.sudo()} npm run migrate:${NETWORK}`,
         path.join(__dirname, '../')
       )
+    }
+
+    if (params.cwd) {
+      await Utils.copyContracts(path.join(process.cwd(), 'protocol'))
+      return true
     }
 
     /** Path to projects directory */
