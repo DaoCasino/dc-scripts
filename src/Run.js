@@ -37,17 +37,33 @@ module.exports = async params => {
           case fs.existsSync(PATH_PROTOCOL_ADDR):
             await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
             break
-          // case status && !fs.existsSync(PATH_PROTOCOL):
-          //   await Utils.rmFolder(PATH_PROTOCOL)
-          //   await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
-          //   break
           case !params.force:
             await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
             break
           default:
             break
         }
+
+        /**
+         * if docker container off and
+         * protocol directory exists then
+         * delete protocol directory and upEnv
+         */
+        if (!status && fs.existsSync(PATH_PROTOCOL)) {
+          await Utils.rmFolder(PATH_PROTOCOL)
+          await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
+        }
       })
+
+    /** 
+     * Check env SDK with --sdk option
+     * and copy contracts protocol and not 
+     * inner migrate
+     */
+    if (params.sdk) {
+      await Utils.copyContracts(path.join(process.cwd(), 'dapp/config'))
+      return true
+    }
 
     /**
      * if contract file not exists or
@@ -59,11 +75,6 @@ module.exports = async params => {
         `${Utils.sudo()} npm run migrate:${NETWORK}`,
         path.join(__dirname, '../')
       )
-    }
-
-    if (params.sdk) {
-      await Utils.copyContracts(path.join(process.cwd(), 'dapp/config'))
-      return true
     }
 
     /** Path to projects directory */
