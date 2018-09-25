@@ -18,6 +18,19 @@ services:
       - ./protocol:/protocol
     networks:
        - dc_network
+
+  dc_signal:
+    labels:
+      - "WebRTC signal"
+      - "rendezvous"
+    image:
+      libp2p/websocket-star-rendezvous:release
+    ports:
+      - 1407:9090
+    environment:
+      - DISABLE_METRICS=1
+    networks:
+      - dc_network
   
   # Bankroller node / casino backend
   # service watch dapp logic and reload node if his change 
