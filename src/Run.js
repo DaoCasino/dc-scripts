@@ -25,6 +25,17 @@ module.exports = async params => {
             path.join(__dirname, '../_env')
           )
         }
+
+        /**
+         * if docker container off and
+         * protocol directory exists then
+         * delete protocol directory and upEnv
+         */
+        if (!status && fs.existsSync(PATH_PROTOCOL)) {
+          await Utils.rmFolder(PATH_PROTOCOL)
+          await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
+          return true
+        }
         /**
          * If status true and network not equal ropsten
          * or params options --force exists then
@@ -42,16 +53,6 @@ module.exports = async params => {
             break
           default:
             break
-        }
-
-        /**
-         * if docker container off and
-         * protocol directory exists then
-         * delete protocol directory and upEnv
-         */
-        if (!status && fs.existsSync(PATH_PROTOCOL)) {
-          await Utils.rmFolder(PATH_PROTOCOL)
-          await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
         }
       })
 
