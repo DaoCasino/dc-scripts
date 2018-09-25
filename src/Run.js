@@ -6,10 +6,11 @@ const upENV = require('./upEnv')
 module.exports = async params => {
   /** Init params */
   const NETWORK            = params.network || 'local'
-  const RECREATE           = (params.force)   ? '--force-recreate' : '--no-recreate'
   const SERVECE_NAME       = params.service  || ((params.protocol) ? 'dc_protocol' : ' ')
+  const PATH_PROTOCOL      = path.join(__dirname, '../_env/protocol')
   const PATH_CONTRACT      = path.join(__dirname, '../_env/protocol', 'dapp.contract.json')
   const PATH_PROTOCOL_ADDR = path.join(__dirname, '../_env/protocol', 'addresses.json')
+  
   /** Start env for developing with params options */
   try {
     /**
@@ -34,6 +35,10 @@ module.exports = async params => {
             await upENV({ service: SERVECE_NAME, recreate: '--no-recreate' })
             break
           case fs.existsSync(PATH_PROTOCOL_ADDR):
+            await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
+            break
+          case status && !fs.existsSync(PATH_PROTOCOL):
+            await Utils.rmFolder(PATH_PROTOCOL)
             await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
             break
           case !params.force:

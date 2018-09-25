@@ -26,7 +26,7 @@ services:
     image:
       libp2p/websocket-star-rendezvous:release
     ports:
-      - 1407:9090
+      - 9090:9090
     environment:
       - DISABLE_METRICS=1
     networks:
@@ -49,6 +49,7 @@ services:
       ["sh", "./run_${DC_NETWORK}_env.sh"]
     environment:
       - privateKey=${PRIVATE_KEY}
+      - signal=/dns4/dc_signal/tcp/9090/ws/p2p-websocket-star/
     networks:
       - dc_network
 
