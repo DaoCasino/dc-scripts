@@ -37,10 +37,10 @@ module.exports = async params => {
           case fs.existsSync(PATH_PROTOCOL_ADDR):
             await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
             break
-          case status && !fs.existsSync(PATH_PROTOCOL):
-            await Utils.rmFolder(PATH_PROTOCOL)
-            await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
-            break
+          // case status && !fs.existsSync(PATH_PROTOCOL):
+          //   await Utils.rmFolder(PATH_PROTOCOL)
+          //   await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
+          //   break
           case !params.force:
             await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
             break
