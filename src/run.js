@@ -25,6 +25,23 @@ module.exports = async params => {
     await Utils.checkDockerContainer('dc_protocol')
       .then(async status => {
         /**
+         * Copy protocol directory from 
+         * docker container in _env directory
+         * if not exists protocol directory
+         * in docker container catch error
+         * and return
+         */
+        try {
+          await Utils.startingCliCommand(
+            `${Utils.sudo()} docker cp dc_protocol:/protocol/ ./`,
+            path.join(__dirname, '../_env')
+          )
+        } catch (err) {
+          console.log('No such file dc_protocol:/protocol/')
+          return false
+        }
+
+        /**
          * if status false or not exists
          * addresses.json in protocol 
          * directory or params.force option
@@ -46,23 +63,6 @@ module.exports = async params => {
             await upENV({ service: SERVECE_NAME, recreate: '--force-recreate' })
           default:
             break
-        }
-
-        /**
-         * Copy protocol directory from 
-         * docker container in _env directory
-         * if not exists protocol directory
-         * in docker container catch error
-         * and return
-         */
-        try {
-          await Utils.startingCliCommand(
-            `${Utils.sudo()} docker cp dc_protocol:/protocol/ ./`,
-            path.join(__dirname, '../_env')
-          )
-        } catch (err) {
-          console.log('No such file dc_protocol:/protocol/')
-          return false
         }
       })
 
