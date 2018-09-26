@@ -13,6 +13,10 @@ module.exports = async params => {
   
   /** Start env for developing with params options */
   try {
+    await Utils.startingCliCommand(
+      'sh ./_scripts/check_docker.sh',
+      path.join(__dirname, '../_env')
+    )
     /**
      * Check exists and status "start"
      * docker container
