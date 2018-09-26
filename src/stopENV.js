@@ -5,9 +5,7 @@ const spawn = require('child_process').spawn
 
 module.exports = () => {
   return new Promise((resolve, reject) => {
-    /**
-     * Start container down in docker
-     */
+    /** Start container down in docker */
     const containersDown = spawn(`${Utils.sudo()} docker-compose down`, {
       cwd   : path.resolve(__dirname, '../_env'),
       stdio : 'inherit',

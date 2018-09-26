@@ -16,7 +16,7 @@ const sudo = () => {
   const sudoAdd = (
     os.type() === 'Linux' ||
     typeof process.env.SUDO_UID !== 'undefined'
-  ) ? 'sudo' : ' '
+  ) ? 'sudo -E' : ' '
    
   return sudoAdd
 }
