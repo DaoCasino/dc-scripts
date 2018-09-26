@@ -38,7 +38,6 @@ module.exports = async params => {
           )
         } catch (err) {
           console.log('No such file dc_protocol:/protocol/')
-          return false
         }
 
         /**
