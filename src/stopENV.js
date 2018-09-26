@@ -8,7 +8,7 @@ module.exports = () => {
     /**
      * Start container down in docker
      */
-    const containersDown = spawn('docker-compose down', {
+    const containersDown = spawn(`${Utils.sudo()} docker-compose down`, {
       cwd   : path.resolve(__dirname, '../_env'),
       stdio : 'inherit',
       shell : true

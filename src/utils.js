@@ -6,14 +6,29 @@ const path  = require('path')
 const chalk = require('chalk')
 const spawn = require('child_process').spawn
 
-const sudo = () => (os.type() === 'Linux') ? 'sudo' : ' '
+const sudo = () => {
+  /**
+   * Check os if os === Linux or
+   * env variable SUDO_UID !== undefined
+   * then return with sudo else return
+   * without sudo
+   */
+  const sudoAdd = (
+    os.type() === 'Linux' ||
+    typeof process.env.SUDO_UID !== 'undefined'
+  ) ? 'sudo' : ' '
+   
+  return sudoAdd
+}
 
+/** Random number with number every min --- max */
 function randomInteger (min, max) {
   return Math.round(
     min - 0.5 + Math.random() * (max - min + 1)
   )
 }
 
+/** Copy contracts directory to target_path */
 function copyContracts (target_path) {
   return new Promise((resolve, reject) => {
     ncp(
@@ -50,7 +65,7 @@ function deletePM2Service (name) {
 function checkDockerContainer(serviceName = 'dc_protocol') {
   return new Promise((resolve, reject) => {
     const log = []
-    const checkContainer = spawn(`docker ps -q -f name=${serviceName}`, {
+    const checkContainer = spawn(`${sudo()} docker ps -q -f name=${serviceName}`, {
       shell: true,
       cwd: path.join(__dirname, '../_env')
     })

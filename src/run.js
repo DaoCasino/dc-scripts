@@ -13,6 +13,7 @@ module.exports = async params => {
   
   /** Start env for developing with params options */
   try {
+    /** Check docker init on machine */
     await Utils.startingCliCommand(
       'sh ./_scripts/check_docker.sh',
       path.join(__dirname, '../_env')
@@ -25,7 +26,7 @@ module.exports = async params => {
       .then(async status => {
         if (status) {
           await Utils.startingCliCommand(
-            'docker cp env_dc_protocol_1:/protocol/ ./',
+            `${Utils.sudo()} docker cp dc_protocol:/protocol/ ./`,
             path.join(__dirname, '../_env')
           )
         }
