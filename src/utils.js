@@ -7,9 +7,9 @@ const chalk = require('chalk')
 const spawn = require('child_process').spawn
 const UUID  = require('node-machine-id')
 
+const UUIDGenerate = () => UUID.machineIdSync({ original: true })
 
-
-const sudo = () => {
+function sudo() {
   /**
    * Check os if os === Linux or
    * env variable SUDO_UID !== undefined
@@ -171,7 +171,7 @@ function rmFolder (targetPath) {
   }
 }
 
-module.exports.UUID                 = ()=>{ return UUID.machineIdSync({original: true}) }
+module.exports.UUID                 = UUIDGenerate
 module.exports.sudo                 = sudo
 module.exports.rmFolder             = rmFolder
 module.exports.exitListener         = exitListener
