@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 const run       = require('../src/run')
+const path      = require('path')
 const test      = require('../src/testRun')
 const setup     = require('../src/setup')
+const Utils     = require('../src/utils')
 const deploy    = require('../src/deploy')
 const stopENV   = require('../src/stopENV')
 const program   = require('commander')
@@ -48,5 +50,13 @@ program
   .command('deploy <network>')
   .description('Deploy contract with network')
   .action((cmd) => deploy(cmd))
+
+program
+  .command('logs <service>')
+  .description('Output docker container logs in ENV')
+  .action((cmd, service) => Utils.startingCliCommand(
+    `${Utils.sudo()} npm run logs:${service}`,
+    path.join(__dirname, '../_env')
+  ))
 
 program.parse(process.argv)
