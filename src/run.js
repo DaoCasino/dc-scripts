@@ -11,6 +11,10 @@ module.exports = async params => {
   const PATH_CONTRACT      = path.join(__dirname, '../_env/protocol', 'dapp.contract.json')
   const PATH_PROTOCOL_ADDR = path.join(__dirname, '../_env/protocol', 'addresses.json')
   
+  if (params.sdk) {
+    process.env.DAPP_ROOM = Utils.UUID()
+  }
+
   /** Start env for developing with params options */
   try {
     /** Check docker init on machine */

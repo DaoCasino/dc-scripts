@@ -19,21 +19,8 @@ services:
       - ./protocol:/protocol
     networks:
        - dc_network
-
-  dc_signal:
-    container_name: dc_signal
-    labels:
-      - "WebRTC signal"
-      - "rendezvous"
-    image:
-      libp2p/websocket-star-rendezvous:release
-    ports:
-      - 9090:9090
-    environment:
-      - DISABLE_METRICS=1
-    networks:
-      - dc_network
   
+
   # Bankroller node / casino backend
   # service watch dapp logic and reload node if his change 
   dc_bankroller:
@@ -51,8 +38,18 @@ services:
     entrypoint: 
       ["sh", "./run_${DC_NETWORK}_env.sh"]
     environment:
-      - privateKey=${PRIVATE_KEY}
-      - signal=/dns4/dc_signal/tcp/9090/ws/p2p-websocket-star/
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - DAPP_ROOM=${DAPP_ROOM}
     networks:
       - dc_network
 
+  dc_ipfs:
+     image: ipfs/go-ipfs
+     container_name: "ipfs_deployer"
+     labels:
+       - "IPFS node for Deploy DApp"
+     # ports:
+       # - 5002:5001
+       # - 8181:8080
+     volumes:
+       - ${DAPP_PATH}:/go/target
