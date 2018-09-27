@@ -5,6 +5,9 @@ const ncp   = require('ncp').ncp
 const path  = require('path')
 const chalk = require('chalk')
 const spawn = require('child_process').spawn
+const UUID  = require('node-machine-id')
+
+
 
 const sudo = () => {
   /**
@@ -168,6 +171,7 @@ function rmFolder (targetPath) {
   }
 }
 
+module.exports.UUID                 = ()=>{ return UUID.machineIdSync({original: true}) }
 module.exports.sudo                 = sudo
 module.exports.rmFolder             = rmFolder
 module.exports.exitListener         = exitListener
