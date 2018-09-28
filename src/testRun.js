@@ -1,10 +1,126 @@
 const fs      = require('fs')
+const run     = require('./run')
 const jest    = require('jest')
 const path    = require('path')
-const Utils   = require('./Utils')
-const upENV   = require('./upEnv')
+const Utils   = require('./utils')
+// const upENV   = require('./upEnv')
 const dotenv  = require('dotenv')
 const stopENV = require('./stopENV')
+
+function upTestENV(params) {
+  return new Promise(async (resolve, reject) => {
+    /** Init params */
+    const DC_LIB          = params.paths.dclib      || process.cwd()
+    const NETWORK         = params.network          || 'local'
+    const TARGET_DAPP     = params.paths.targetDir  || path.join(process.cwd(), 'src/dapp')
+    const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
+  
+    /** Check exist for paths */
+    if (
+      !fs.existsSync(DC_LIB) ||
+      !fs.existsSync(BANKROLLER_CORE) ||
+      !fs.existsSync(TARGET_DAPP)
+    ) {
+      console.error(`
+        last of path is incorrect
+        Lib: ${DC_LIB}
+        Bankroller: ${BANKROLLER_CORE}
+        Target dapp: ${TARGET_DAPP}
+      `)
+      process.exit(1)
+    }
+    
+    try {
+      /* 
+      * Start docker containers with arguments
+      * and migrate smart contracts with truffle
+      * then copy folder with smart contracts in DCLib
+      * or bankroller
+      */
+      await run({
+        force          : true,
+        service        : 'dc_protocol',
+        network        : NETWORK,
+        dclibPath      : DC_LIB,
+        bankrollerPath : BANKROLLER_CORE
+      });
+      
+      /** Start bankroller-core service with pm2 */
+      await Utils.startPM2Service({
+        cwd: BANKROLLER_CORE,
+        name: 'bankroller',
+        exec_mode: 'fork',
+        interpreter: 'sh',
+        script: (NETWORK === 'ropsten')
+          ? './run_ropsten_env.sh'
+          : './run_dev_env.sh'
+      })
+
+      /** Building lib and copy in TARGET_DAPP folder */
+      const buildLib = await Utils.startingCliCommand(`npm run build:${NETWORK}`, DC_LIB)
+      
+      if (buildLib) {
+        /** Copye building DCLib in target dapp path */
+        const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
+        const writeFileStream = fs.createWriteStream(path.join(TARGET_DAPP, 'DC.js'))
+        
+        readFileStream.pipe(writeFileStream)
+
+        resolve({
+          code  : 0,
+          error : null,
+          paths : params.paths
+        })
+       }
+    } catch (err) {
+      reject({
+        code  : 301,
+        error : err,
+        paths : params.paths
+      })
+    }
+  })
+}
+
+/**
+ * Function for exit
+ * she stop Env docker containers
+ * and delete contracts paths 
+ */
+async function exit (params) {
+  /** Init params */
+  const CODE            = params.code             || 0
+  const DC_LIB          = params.paths.dclib      || process.cwd()
+  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
+
+  try {
+
+    /**
+     * Stop PM2 bankroller service
+     * and stop docker env
+     */
+    await Utils.deletePM2Service('bankroller')
+    const stopDockerContainer = await stopENV()
+  
+    /**
+     * If bankroller pm2 service and docker
+     * env is stoped then check exist path to
+     * contracts and remove in dclib and bankroller
+     * projects after process exit with code in params
+     */
+    if (stopDockerContainer) {
+      const libContracts      = path.join(DC_LIB, './protocol')
+      const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
+  
+      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
+      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
+      process.exit(CODE)
+    }
+  } catch (err) {
+    console.error(err.message)
+    process.exit()
+  }
+}
 
 /**
  * Start unit tests with
@@ -28,144 +144,18 @@ function Unit() {
 }
 
 /**
- * Start for stress tests 
- */
-async function Stress (params) {
-  /**
-   * Init path for folders
-   */
-  const DC_LIB          = params.paths.dclib      || process.cwd()
-  const TARGET_DAPP     = params.targetDir        || process.cwd()
-  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
-
-  /**
-   * Check exist for paths
-   */
-  if (
-    !fs.existsSync(DC_LIB) ||
-    !fs.existsSync(BANKROLLER_CORE) ||
-    !fs.existsSync(TARGET_DIR)
-  ) {
-    console.error(`
-      last of path is incorrect
-      Lib: ${DC_LIB}
-      Bankroller: ${BANKROLLER_CORE}
-      Target dapp: ${TARGET_DAPP}
-    `)
-    process.exit(1)
-  }
-
-  try {
-    /**
-     * Building lib and copy in TARGET_DAPP folder
-     */
-    const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
-    
-    if (buildLib) {
-      const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
-      const writeFileStream = fs.createWriteStream(TARGET_DAPP)
-      
-      readFileStream.pipe(writeFileStream)
-      
-      /**
-       * Start bankroller-core service
-       * with pm2
-       */
-      await Utils.startPM2Service({
-        cwd         : BANKROLLER_CORE,
-        name        : 'bankroller',
-        exec_mode   : 'fork',
-        script      : './run_ropsten_env.sh',
-        interpreter : 'sh'
-      })
-     }
-  } catch (err) {
-    console.error(err)
-    process.exit(301)
-  }
-}
-
-/**
  * Start enviroment for integration
  * tests and run Jest tests
  */
-async function Integration (params) {
-  const DC_LIB          = params.paths.dclib      || process.cwd()
-  const BANKROLLER_CORE = params.paths.bankroller || process.cwd()
-
-  if (!fs.existsSync(DC_LIB) || !fs.existsSync(BANKROLLER_CORE)) {
-    console.error('DCLib or Bankroller is not define')
-    process.exit(1)
-  }
-  
-  /**
-   * Function for exit
-   * she stop Env docker containers
-   * and delete contracts paths 
-   */
-  async function exit (code = 0) {
-    const stopDockerContainer = await stopENV()
-
-    if (stopDockerContainer) {
-      const libContracts      = path.join(DC_LIB, './protocol')
-      const bankrollContracts = path.join(BANKROLLER_CORE, './protocol');
-
-      (fs.existsSync(libContracts))      && Utils.rmFolder(libContracts);
-      (fs.existsSync(bankrollContracts)) && Utils.rmFolder(bankrollContracts);
-      process.exit(code)
-    }
-  }
-
+async function Integration (params) {  
   try {
-    /* 
-    * Start docker containers with arguments
-    * and migrate smart contracts with truffle
-    * then copy folder with smart contracts in DCLib
-    * or bankroller
-    */
-    await upENV({ sevice : 'dc_protocol' })
     /**
-     * Copy contracts in protocol projects
+     * Up test env, handle
+     * error reject and start exit function
+     * with reject object else start test with resolve object
      */
-    await Utils.copyContracts(path.join(DC_LIB, './protocol'))
-    await Utils.copyContracts(path.join(BANKROLLER_CORE, './protocol'))
-    /**
-     * Start Build DCLib
-     * and get build version in test dapp
-     */
-    const buildLib = await Utils.startingCliCommand('npm run build:local', DC_LIB)
+    const upStatus = await upTestENV(params)
     
-    if (buildLib) {
-      const readFileStream  = fs.createReadStream(path.join(DC_LIB, 'dist/DC.js'))
-      const writeFileStream = fs.createWriteStream(path.join(process.cwd(), 'src/dapp/DC.js'))
-      
-      readFileStream.pipe(writeFileStream)
-      
-      /**
-       * Start bankroller-core service
-       * with pm2
-       */
-      await Utils.startPM2Service({
-        cwd         : BANKROLLER_CORE,
-        name        : 'bankroller',
-        exec_mode   : 'fork',
-        script      : './run_dev_env.sh',
-        interpreter : 'sh'
-      })
-     }
-  } catch (err) {
-    /**
-     * if error then stop bankroller in pm2
-     * stop docker container protocol and
-     * exit process
-     */
-    console.error(err)
-    
-    await Utils.deletePM2Service('bankroller')
-    exit(301)
-  }
-  
-  try {
     /**
      * Run jest tests with integration config
      */
@@ -177,19 +167,20 @@ async function Integration (params) {
       },
       
       [path.join(process.cwd(), './src/__tests__/integration')]
-    )
+    );
 
-    if (testStart) {
-      await Utils.deletePM2Service('bankroller')
-      exit()
-    }
+    (testStart) && exit(upStatus)
   } catch (err) {
+    /**
+     * Output log and stat exit function
+     * with reject object or resolve object
+     */
     console.error(err)
-    await Utils.deletePM2Service('bankroller')
-    exit(301)
+    exit(upStatus)
   }
 }
 
-module.exports.Stress      = Stress
+module.exports.exit        = exit
+module.exports.upTestENV   = upTestENV
 module.exports.Integration = Integration
 module.exports.Unit = cmd => Unit(cmd)

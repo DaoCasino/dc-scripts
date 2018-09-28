@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-const Run     = require('../src/Run')
-const test    = require('../src/testRun')
-const setup   = require('../src/setup')
-const remove  = require('../src/remove')
-const stopENV = require('../src/stopENV')
-const program = require('commander')
+const run       = require('../src/run')
+const logs      = require('../src/logs')
+const test      = require('../src/testRun')
+const setup     = require('../src/setup')
+const deploy    = require('../src/deploy')
+const stopENV   = require('../src/stopENV')
+const program   = require('commander')
+const uninstall = require('../src/uninstall')
 
 program
   .version(require('../package.json').version)
@@ -23,13 +25,15 @@ program
 program
   .command('uninstall')
   .description('Uninstall DC Development ENV')
-  .action(cmd => remove(cmd))
+  .action(cmd => uninstall(cmd))
 
 program
   .command('run')
   .description('Start env for development with options')
   .option('-p, --protocol', 'Start without bankroller-container')
-  .action(cmd => Run(cmd))
+  .option('-s, --sdk', 'output contracts with SDK path')
+  .option('-f, --force', 'force recreate docker container')
+  .action(cmd => run(cmd))
 
 program
   .command('stop')
@@ -40,5 +44,15 @@ program
   .command('test')
   .description('Start testing')
   .action(cmd => test.Unit(cmd))
+
+program
+  .command('deploy <network>')
+  .description('Deploy contract with network')
+  .action((cmd) => deploy(cmd))
+
+program
+  .command('logs <service>')
+  .description('Output docker container logs in ENV')
+  .action((service) => logs(service))
 
 program.parse(process.argv)

@@ -5,9 +5,11 @@ const contracts = path.resolve(protocol + '/contracts/')
 const dapp_abi  = path.resolve(protocol + '/dapp.contract.json')
 
 module.exports = function (network = false) {
-  let addresses = require(path.resolve(protocol + '/addresses.json'))
+  let addresses = false
   
-  if (network === 'ropsten') {
+  if (network !== 'ropsten') {
+    addresses = require(path.resolve(protocol + '/addresses.json'))
+  } else {
     addresses = {
       ERC20:    '0x5D1E47F703729fc87FdB9bA5C20fE4c1b7c7bf57',
       Referrer: '0x674ff87adfe928b8b0ffbbddf7faeb5ae7a1f9d6',

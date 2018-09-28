@@ -1,7 +1,6 @@
 const fs      = require('fs')
 const path    = require('path')
 const chalk   = require('chalk')
-const Utils   = require('./Utils')
 const spawn   = require('child_process').spawn
 const _config = require('./config/config')
 
@@ -73,7 +72,7 @@ module.exports = async (cmd, pathToDir) => {
     console.error(chalk.red(`
       Protocol is installed with folder ${chalk.green(require(pathToFileJSON))}
       if have reinstall then use:
-      ${chalk.yellow('dc-scripts remove && dc-scripts setup [nameDir]')}
+      ${chalk.yellow('dc-scripts uninstall && dc-scripts setup [nameDir]')}
     `))
 
     process.exit()

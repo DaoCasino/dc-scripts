@@ -12,7 +12,7 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/'],
   collectCoverage: true,
   coverageDirectory: 'test/coverage',
-  coverageReporters: ['json'],
+  coverageReporters: ['html'],
   collectCoverageFrom: [
     'lib/**/*.js',
     'src/**/*.js',
