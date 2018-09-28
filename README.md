@@ -14,11 +14,11 @@ Install dc-scripts
 
 With npm
 ```shell
-  npm install daocasino/dc-scripts#develop -g
+  npm install daocasino/dc-scripts -g
 ```
 With yarn
 ```shell
-  yarn global add daocasino/dc-scripts#develop
+  yarn global add daocasino/dc-scripts
 ```
 ___
 ## API
