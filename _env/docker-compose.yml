@@ -31,8 +31,6 @@ services:
       - dc_protocol
     image:
       daocasino/bankroller
-    environment:
-      - privateKey=0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5
     volumes:
       - ./protocol:/protocol
       - ./bankroller/dapps/:/bankroller/data_sdk/dapps/
@@ -40,7 +38,7 @@ services:
     entrypoint: 
       ["sh", "./run_${DC_NETWORK}_env.sh"]
     environment:
-      - PRIVATE_KEY=${PRIVATE_KEY}
+      - privateKey=${PRIVATE_KEY}
       - DAPP_ROOM=${DAPP_ROOM}
     networks:
       - dc_network
