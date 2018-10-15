@@ -19,7 +19,7 @@ module.exports = async params => {
   try {
     /** Check docker init on machine */
     await Utils.startingCliCommand(
-      'sh ./_scripts/check_docker.sh',
+      `${Utils.sudo()} sh ./_scripts/check_docker.sh`,
       path.join(__dirname, '../_env')
     )
     /**

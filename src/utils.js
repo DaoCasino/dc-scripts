@@ -9,20 +9,7 @@ const UUID  = require('node-machine-id')
 
 const UUIDGenerate = () => UUID.machineIdSync({ original: true })
 
-function sudo() {
-  /**
-   * Check os if os === Linux or
-   * env variable SUDO_UID !== undefined
-   * then return with sudo else return
-   * without sudo
-   */
-  const sudoAdd = (
-    os.type() === 'Linux' ||
-    typeof process.env.SUDO_UID !== 'undefined'
-  ) ? 'sudo -E' : ' '
-   
-  return sudoAdd
-}
+const sudo = () => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ' ' 
 
 /** Random number with number every min --- max */
 function randomInteger (min, max) {
@@ -125,7 +112,6 @@ function exitListener (f) {
 
         f()
         process.kill(0, 'SIGKILL')
-        process.exit()
       })
     })
 }
